@@ -21,6 +21,7 @@ import {
 const initialState = {
   tableAvailabilityMsg: { show: false, msg: '' },
   showTableAvailabilityMsg: { show: false, msg: '' },
+  tableOptions: true,
   listOfAllTables: tables,
   currentDate: '',
   currentFormPartVisible: 0,
