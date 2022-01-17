@@ -4,7 +4,6 @@ import Head from 'next/head';
 import MsgModal from '../components/MsgModal';
 import _ from 'lodash';
 import styles from '../styles/Home.module.css';
-// import tables from '../amountOfTables';
 import DateAdapter from '@mui/lab/AdapterDateFns';
 import LocalizationProvider from '@mui/lab/LocalizationProvider';
 import TextField from '@mui/material/TextField';
@@ -269,10 +268,6 @@ const Home: NextPage = () => {
       const availableTablesOnlyTheOneThatDontHaveCurrentTimeFrame =
         allAvailableTablesForGroupSize.map((table) => {
           if (table.reservedTimes.length === 0) {
-            // console.log(
-            //   table.reservedTimes.length === 0,
-            //   'iz if table.reservedTimes'
-            // );
             return table;
           } else {
             const timeAlreadyUsed = table.reservedTimes.some((time) => {
@@ -356,11 +351,6 @@ const Home: NextPage = () => {
             });
           }
         });
-
-      console.log(
-        availableTablesOnlyTheOneThatDontHaveCurrentTimeFrameAndTimeFramesNotOverlapping,
-        'STA JE OVO LEBA TI'
-      );
 
       if (
         availableTablesOnlyTheOneThatDontHaveCurrentTimeFrameAndTimeFramesNotOverlapping.length ===
