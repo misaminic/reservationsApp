@@ -98,8 +98,10 @@ input[type='number'] {
 .sitting-area {
   grid-template-areas:
     'date date date'
-    'eight fifteen . ' 'seven fourteen .' 'six thirteen . '
-    '.  thirteen . ' 'five twelve . ' '. twelve .' 'four invisible-element .'
+    'arrivingTime arrivingTime arrivingTime'
+    'leavingTime leavingTime leavingTime'
+    'eight fifteen invisible-element-3' 'seven fourteen invisible-element-4' 'six thirteen invisible-element-5 '
+    '.  thirteen invisible-element-5 ' 'five twelve invisible-element-6 ' '. twelve .' 'four invisible-element invisible-element-7'
     'three invisible-element-2 twenty ' 'two eleven twenty ' 'one ten twenty '
     'thirty thirtyone thirtytwo'
     'forty fiftyoneandtwo thirtythree' 'fortyone fifty thirtyfour'
@@ -118,6 +120,14 @@ input[type='number'] {
 
 .date {
   grid-area: date;
+}
+
+.arrivingTime {
+  grid-area: arrivingTime;
+}
+
+.leavingTime {
+  grid-area: leavingTime;
 }
 
 .one {
@@ -239,7 +249,11 @@ input[type='number'] {
 .invisible-element-2 {
   grid-area: invisible-element-2;
 }
-/*
+
+.fiftyoneandtwo {
+  grid-area: fiftyoneandtwo;
+}
+
 .invisible-element-3 {
   grid-area: invisible-element-3;
 }
@@ -247,7 +261,21 @@ input[type='number'] {
 .invisible-element-4 {
   grid-area: invisible-element-4;
 }
-*/
-.fiftyoneandtwo {
-  grid-area: fiftyoneandtwo;
+
+.invisible-element-5 {
+  grid-area: invisible-element-5;
+}
+
+.invisible-element-6 {
+  grid-area: invisible-element-6;
+}
+
+.invisible-element-7 {
+  grid-area: invisible-element-7;
+}
+
+/* Material UI components styles added */
+
+.MuiFormControl-root {
+  min-width: 260px;
 }

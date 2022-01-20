@@ -89,10 +89,6 @@ const Home: NextPage = () => {
     console.log(dataFromDb.data?.reservations, 'PROMENA DATUMA');
   }, [currentDate]);
 
-  // useEffect(() => {
-  //   console.log(isAnimated, currentFormPartVisible, 'AAAAAAAA');
-  // });
-
   useEffect(() => {
     if (dataFromDb.data?.reservations?.tables.length > 0) {
       updateListOfAllTables(dataFromDb.data.reservations.tables);

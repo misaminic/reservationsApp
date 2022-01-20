@@ -1,10 +1,4 @@
-import React, {
-  useState,
-  useContext,
-  useReducer,
-  useEffect,
-  useCallback,
-} from 'react';
+import React, { useState, useContext, useReducer, useEffect } from 'react';
 
 import axios from 'axios';
 import reducer from '../reducer/AppReducer';
@@ -47,6 +41,7 @@ const initialState = {
     { id: 12, occupied: false },
     { id: 13, occupied: false },
     { id: 14, occupied: false },
+    { id: 15, occupied: false },
     { id: 20, occupied: false },
     { id: 30, occupied: false },
     { id: 31, occupied: false },
@@ -70,18 +65,14 @@ export const AppProvider = ({ children }) => {
   const [state, dispatch] = useReducer(reducer, initialState);
   const [dataFromDb, setDataFromDb] = useState([]);
 
-  useEffect(() => {
-    console.log(state.tableManuallyBooked, 'sto kad god se promeni STATE');
-    // console.log(dataFromDb, 'DA vidimo radi li FETCH');
-  }, [state.tableManuallyBooked]);
-
   // Async function to help fetch items from the DB and pass params used to query DB
 
   const axiosFetch = async () => {
-    const bla = await axios.get('/api/reserveTable', {
+    console.log(state.currentDate);
+    const getData = await axios.get('/api/reserveTable', {
       params: { dateChosen: state.currentDate },
     });
-    setDataFromDb(bla);
+    setDataFromDb(getData);
     // console.log('ODradio FETCH OPET');
   };
 
@@ -91,10 +82,9 @@ export const AppProvider = ({ children }) => {
 
   const sendData = () => {
     const { listOfAllTables, currentDate } = state;
-    console.log(listOfAllTables, currentDate, 'usao u SEND DAAAATA');
 
     if (currentDate) {
-      console.log(listOfAllTables, currentDate, 'usao u SEND DAAAATA 2');
+      // console.log(listOfAllTables, currentDate, 'usao u SEND DAAAATA 2');
       fetch('/api/reserveTable', {
         method: 'POST',
         body: JSON.stringify({
@@ -111,23 +101,11 @@ export const AppProvider = ({ children }) => {
     }
   };
 
-  // const sendDataAfterManualBooking = () => {
-  //   const { listOfAllTables, currentDate } = state;
-  //   if (currentDate) {
-  //     fetch('/api/reserveTable', {
-  //       method: 'POST',
-  //       body: JSON.stringify({
-  //         state: {
-  //           date: currentDate,
-  //           tables: listOfAllTables,
-  //           kurac: 'jede',
-  //         },
-  //       }),
-  //       headers: {
-  //         'Content-Type': 'application/json',
-  //       },
-  //     });
-  //   }
+  useEffect(() => {
+    if (dataFromDb.data?.reservations?.tables) {
+      updateListOfAllTables(dataFromDb.data.reservations.tables);
+    }
+  }, [dataFromDb]);
 
   useEffect(() => {
     if (dataFromDb.data?.reservations?.tables.length > 0) {
@@ -140,7 +118,7 @@ export const AppProvider = ({ children }) => {
     }
 
     if (state.tableManuallyBooked.id && state.tableSizeWhenManualBooking > 0) {
-      console.log(state.tableManuallyBooked, 'usao u efekat');
+      // console.log(state.tableManuallyBooked, 'usao u efekat');
       const currentList = state.listOfAllTables.filter((item) => {
         return item.tables.filter((table) => {
           // Case when disabled table is clicked
@@ -150,33 +128,62 @@ export const AppProvider = ({ children }) => {
           // }
 
           if (table.id === state.tableManuallyBooked?.id) {
-            const currentTimeToAddIndex =
-              state.tableManuallyBooked.reservedTimes.length - 1;
+            if (state.tableManuallyBooked?.reservedTimes.length > 0) {
+              console.log(state.tableManuallyBooked, 'ovo je manualni STO');
+              const currentTimeToAddIndex =
+                state.tableManuallyBooked.reservedTimes.length - 1;
 
-            const currentCustomerToAddIndex =
-              state.tableManuallyBooked.customers.length - 1;
+              const currentCustomerToAddIndex =
+                state.tableManuallyBooked.customers.length - 1;
 
-            table?.customers = [
-              ...table.customers,
-              {
-                name: state.tableManuallyBooked.customers[
-                  currentCustomerToAddIndex
-                ].name.toLowerCase(),
-                email:
-                  state.tableManuallyBooked.customers[currentCustomerToAddIndex]
-                    .email,
-                time: state.tableManuallyBooked?.reservedTimes[
-                  currentTimeToAddIndex
-                ],
-              },
-            ];
+              table?.customers = [
+                ...table.customers,
+                {
+                  name: state.tableManuallyBooked.customers[
+                    currentCustomerToAddIndex
+                  ].name.toLowerCase(),
+                  email:
+                    state.tableManuallyBooked.customers[
+                      currentCustomerToAddIndex
+                    ].email,
+                  time: state.tableManuallyBooked?.reservedTimes[
+                    currentTimeToAddIndex
+                  ],
+                },
+              ];
 
-            table?.reservedTimes = [
-              ...table.reservedTimes,
-              state.tableManuallyBooked?.reservedTimes[currentTimeToAddIndex],
-            ];
-            // console.log('poklapa se id sa stolom');
-            return table;
+              table?.reservedTimes = [
+                ...table.reservedTimes,
+                state.tableManuallyBooked?.reservedTimes[currentTimeToAddIndex],
+              ];
+              return table;
+            } else {
+              const currentTimeToAddIndex =
+                state.tableManuallyBooked.reservedTimes.length - 1;
+
+              const currentCustomerToAddIndex =
+                state.tableManuallyBooked.customers.length - 1;
+
+              table?.customers = [
+                {
+                  name: state.tableManuallyBooked.customers[
+                    currentCustomerToAddIndex
+                  ].name.toLowerCase(),
+                  email:
+                    state.tableManuallyBooked.customers[
+                      currentCustomerToAddIndex
+                    ].email,
+                  time: state.tableManuallyBooked?.reservedTimes[
+                    currentTimeToAddIndex
+                  ],
+                },
+              ];
+
+              table?.reservedTimes = [
+                state.tableManuallyBooked?.reservedTimes[currentTimeToAddIndex],
+              ];
+              return table;
+            }
           }
         });
       });
@@ -185,11 +192,6 @@ export const AppProvider = ({ children }) => {
       sendData();
     }
   }, [state.tableManuallyBooked]);
-
-  // console.log(listOfAllTables, currentDate, 'usao u SEND DATA');
-  // setTimeout(() => {
-  //   dispatch({ type: FEEDBACK_SUBMITING_FINISHED });
-  // }, 3000);
 
   const submitReservationToDB = async (e: { preventDefault: () => void }) => {
     e.preventDefault();

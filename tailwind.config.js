@@ -12,6 +12,7 @@ module.exports = {
       colors: {
         siva: '#f9fafb',
         sivaBorder: '#64748b',
+        rose: '#f43f5e',
       },
     },
     // colors: {

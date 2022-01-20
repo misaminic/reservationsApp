@@ -22,6 +22,29 @@ const tables = [
       },
     ],
   },
+  {
+    key: 4,
+    tables: [
+      {
+        id: 4,
+        available: true,
+        reservedTimes: [],
+        customers: [],
+      },
+      {
+        id: 5,
+        available: true,
+        reservedTimes: [],
+        customers: [],
+      },
+      {
+        id: 7,
+        available: true,
+        reservedTimes: [],
+        customers: [],
+      },
+    ],
+  },
 ];
 //     // {
 //     //   id: 6,

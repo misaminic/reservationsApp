@@ -80,6 +80,13 @@ const BookTableManually = ({ table, size }) => {
 
       if (timeAlreadyUsed === false) {
         const areTimesOverlapping = table.reservedTimes.find((time) => {
+          console.log(
+            new Date(time?.start),
+            new Date(time?.end),
+            'iz baze',
+            timeStartEndUserInput,
+            'user vreme book manually'
+          );
           const checkIfTimesOverlapping = areIntervalsOverlapping(
             { start: new Date(time?.start), end: new Date(time?.end) },
             timeStartEndUserInput,
@@ -90,8 +97,8 @@ const BookTableManually = ({ table, size }) => {
 
           return checkIfTimesOverlapping === true;
         });
-
-        if (areTimesOverlapping === true) {
+        console.log(areTimesOverlapping, 'da li preplicu');
+        if (areTimesOverlapping) {
           showTableAvailabilityMsg(
             true,
             `Valgt tidspunktet er ikke ledig, prøv gjerne et annet tidspunkt.`
@@ -102,10 +109,12 @@ const BookTableManually = ({ table, size }) => {
           const updatedTable = {
             ...table,
             reservedTimes: [...table.reservedTimes, timeStartEndUserInput],
-            customers: [...table.customers, { name: isName, email: isEmail }],
+            customers: [
+              ...table.customers,
+              { name: isName, email: isEmail, time: timeStartEndUserInput },
+            ],
           };
           if (updatedTable) {
-            console.log(updatedTable, 'updated Table EVO Ga');
             manuallyBookATable(updatedTable, size);
             showTableAvailabilityMsg(
               true,
@@ -119,7 +128,9 @@ const BookTableManually = ({ table, size }) => {
       const updatedTable = {
         ...table,
         reservedTimes: [timeStartEndUserInput],
-        customers: [{ name: isName, email: isEmail }],
+        customers: [
+          { name: isName, email: isEmail, time: timeStartEndUserInput },
+        ],
       };
       if (updatedTable) {
         manuallyBookATable(updatedTable, size);
