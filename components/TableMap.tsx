@@ -9,7 +9,14 @@ import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import ChevronRightIcon from '@mui/icons-material/ChevronRight';
-import { addDays, subDays, addHours, subHours } from 'date-fns';
+import {
+  addDays,
+  subDays,
+  addHours,
+  subHours,
+  areIntervalsOverlapping,
+  set,
+} from 'date-fns';
 import _ from 'lodash';
 import tables from '../amountOfTables';
 import MobileTimePicker from '@mui/lab/MobileTimePicker';
@@ -21,85 +28,198 @@ const TableMap = () => {
     tablesStates,
     setDate,
     dataFromDb,
-    // currentDate,
   } = useAppContext();
-
-  // const setTablesVisualState = tablesStates.map((item) => {
-  //   return item.id ===
-  // })
-
-  console.log(dataFromDb, 'data iz DB');
-
-  // const timeAlreadyUsed = table.reservedTimes.some((time) => {
-  //   const timeSlotReserved = _.isEqual(
-  //     { start: new Date(time?.start), end: new Date(time?.end) },
-  //     timeStartEndUserInput
-  //   );
-  //   return timeSlotReserved === true;
-  // });
-
-  // if (timeAlreadyUsed === true) {
-  //   showTableAvailabilityMsg(
-  //     true,
-  //     `Valgt tidspunktet er ikke ledig, prøv gjerne et annet tidspunkt.`
-  //   );
-  // }
-
-  // if (timeAlreadyUsed === false) {
-  //   const areTimesOverlapping = table.reservedTimes.find((time) => {
-  //     const checkIfTimesOverlapping = areIntervalsOverlapping(
-  //       { start: new Date(time?.start), end: new Date(time?.end) },
-  //       timeStartEndUserInput,
-  //       {
-  //         inclusive: true,
-  //       }
-  //     );
-
-  //     return checkIfTimesOverlapping === true;
-  //   });
-
-  //   if (areTimesOverlapping === true) {
-  //     showTableAvailabilityMsg(
-  //       true,
-  //       `Valgt tidspunktet er ikke ledig, prøv gjerne et annet tidspunkt.`
-  //     );
-  //   }
 
   const [currentTable, setCurrentTable] = useState({});
   const [currentTableSize, setCurrentTableSize] = useState(0);
   const [currentDate, setCurrentDate] = useState(new Date());
   const [currentTablesStates, setCurrentTableStates] = useState({});
   const [currentArrivingTime, setCurrentArrivingTime] = useState(new Date());
-  const [currentLeavingTime, setCurrentLeavingTime] = useState(new Date());
+  const [currentLeavingTime, setCurrentLeavingTime] = useState(
+    addHours(new Date(currentArrivingTime), 1)
+  );
+  const [currentMinLeavingTime, setCurrentMinLeavingTime] = useState(0);
+  const [twoWeeksInFuture, setTwoWeeksInFuture] = useState(
+    addDays(new Date(), 15)
+  );
 
   useEffect(() => {
     if (currentDate) {
       const dateFormatDbReady = currentDate.toString().slice(0, 15);
       setDate(dateFormatDbReady);
+      // set minimum time for leaving a table
+      const minLeavingHour = currentArrivingTime.getHours();
+      setCurrentMinLeavingTime(minLeavingHour + 1);
+
+      console.log(tablesStates, 'tablesStatesssss');
     }
     console.log(dataFromDb.data?.reservations, 'PROMENA DATUMA');
-  }, [currentDate]);
+  }, [currentDate, currentArrivingTime, currentLeavingTime]);
 
   useEffect(() => {
-    console.log(listOfAllTables, 'lista svih stolova');
+    // set minutes for currentArrivalTime and currentLeavingTime to be 0, 15, 30 or 45
+    const day = currentDate.getDate();
+    const month = currentDate.getMonth();
+    const year = currentDate.getFullYear();
+    const hour = currentDate.getHours();
+    const minutes = currentDate.getMinutes();
+
+    // currentArrivingTime
+
+    if (minutes > 0 && minutes < 15) {
+      setCurrentArrivingTime(new Date(year, month, day, hour, 15));
+    }
+
+    if (minutes > 15 && minutes < 30) {
+      setCurrentArrivingTime(new Date(year, month, day, hour, 30));
+    }
+
+    if (minutes > 30 && minutes < 45) {
+      setCurrentArrivingTime(new Date(year, month, day, hour, 45));
+    }
+
+    if (minutes > 45) {
+      setCurrentArrivingTime(new Date(year, month, day, hour, 0));
+    }
+
+    // currentLeavingTime
+
+    if (minutes > 0 && minutes < 15) {
+      setCurrentLeavingTime(new Date(year, month, day, hour + 1, 15));
+    }
+
+    if (minutes > 15 && minutes < 30) {
+      setCurrentLeavingTime(new Date(year, month, day, hour + 1, 30));
+    }
+
+    if (minutes > 30 && minutes < 45) {
+      setCurrentLeavingTime(new Date(year, month, day, hour + 1, 45));
+    }
+
+    if (minutes > 45) {
+      setCurrentLeavingTime(new Date(year, month, day, hour + 1, 0));
+    }
+  }, []);
+
+  useEffect(() => {
     let allTablesThatHaveSomeTimeReserved = listOfAllTables.map(
       (tableGroups) => {
         return tableGroups.tables.map((table) => {
           console.log(table);
-          return table.reservedTimes.length > 0 ? table.id : null;
+          return table.reservedTimes.length > 0 ? table : null;
         });
       }
     );
+
     const withoutFalseValues = allTablesThatHaveSomeTimeReserved.map(
       (arrayOfTables) => {
         return _.compact(arrayOfTables);
       }
     );
 
-    let reservedTablesIds = [];
+    console.log(withoutFalseValues, 'rezervisani');
+
+    let tablesWithTimesOverlapping;
 
     if (withoutFalseValues) {
-      withoutFalseValues.map((arrayOfTables) => {
+      tablesWithTimesOverlapping = withoutFalseValues.map((tableGroups) => {
+        console.log(tableGroups, 'GRUPE');
+        return tableGroups.map((table) => {
+          // console.log(table);
+          // return table.reservedTimes.length > 0 ? table : null;
+          if (table.reservedTimes?.length > 0) {
+            const timeAlreadyUsed = table.reservedTimes.some((time) => {
+              const timeSlotReserved = _.isEqual(
+                { start: new Date(time?.start), end: new Date(time?.end) },
+                {
+                  start: new Date(currentArrivingTime),
+                  end: new Date(currentLeavingTime),
+                }
+              );
+              return timeSlotReserved === true;
+            });
+
+            console.log(timeAlreadyUsed, 'korisceno vreme');
+
+            if (timeAlreadyUsed === true) {
+              return table;
+            }
+
+            if (timeAlreadyUsed === false) {
+              const areTimesOverlapping = table.reservedTimes.some((time) => {
+                const day = currentDate.getDate();
+                const month = currentDate.getMonth();
+                const year = currentDate.getFullYear();
+                const hourArrive = currentArrivingTime.getHours();
+                const minutesArrive = currentArrivingTime.getMinutes();
+                const hourLeave = currentLeavingTime.getHours();
+                const minutesLeave = currentLeavingTime.getMinutes();
+
+                const arrive = new Date(
+                  year,
+                  month,
+                  day,
+                  hourArrive,
+                  minutesArrive,
+                  0
+                );
+
+                const leave = new Date(
+                  year,
+                  month,
+                  day,
+                  hourLeave,
+                  minutesLeave,
+                  0
+                );
+
+                console.log(time, 'Proba da vidimo sta je datum');
+
+                console.log(
+                  { start: new Date(time?.start), end: new Date(time?.end) },
+                  {
+                    start: new Date(arrive),
+                    end: new Date(leave),
+                  }
+                );
+
+                const checkIfTimesOverlapping = areIntervalsOverlapping(
+                  { start: new Date(time?.start), end: new Date(time?.end) },
+                  {
+                    start: new Date(arrive),
+                    end: new Date(leave),
+                  },
+                  {
+                    inclusive: true,
+                  }
+                );
+                console.log(checkIfTimesOverlapping, 'provera iz overlapa');
+                return checkIfTimesOverlapping === true;
+              });
+              console.log(areTimesOverlapping, 'ukrsteno vreme');
+              return areTimesOverlapping === true ? table.id : null;
+            }
+          }
+        });
+      });
+    }
+
+    const tablesWithTimesOverlappingWithoutFalsyValues =
+      tablesWithTimesOverlapping.map((tableGroups) => {
+        return tableGroups.filter((item) => item !== null);
+      });
+
+    // console.log(tablesWithTimesOverlapping, 'da vidimo sta si dobio prethodno');
+
+    console.log(
+      tablesWithTimesOverlappingWithoutFalsyValues,
+      'da vidimo sta si dobio'
+    );
+
+    let reservedTablesIds = [];
+
+    if (tablesWithTimesOverlappingWithoutFalsyValues) {
+      tablesWithTimesOverlappingWithoutFalsyValues.map((arrayOfTables) => {
         console.log(arrayOfTables, 'ovo je jedna grupa');
         return arrayOfTables.map((item) => {
           return reservedTablesIds.push(item);
@@ -107,7 +227,9 @@ const TableMap = () => {
       });
     }
 
-    let currentTablesToChangeAvailability = { ...tablesStates };
+    let currentTablesToChangeAvailability = _.cloneDeep(tablesStates);
+
+    console.log(currentTablesToChangeAvailability, 'currentTOChange');
 
     if (reservedTablesIds.length > 0) {
       const reservedTablesToChangeState = reservedTablesIds.map((id) => {
@@ -115,49 +237,76 @@ const TableMap = () => {
         return _.filter(currentTablesToChangeAvailability, { id: id });
       });
 
+      // const isObj = _.toArray(currentTablesToChangeAvailability);
+      // console.log(isObj, 'ovo je OBJ');
+
+      // isObj.forEach((table) => {
+      //   return (table.occupied = false);
+      // });
+
+      // console.log(isObj, 'drugi put');
+
       reservedTablesToChangeState.forEach((tableGroup) => {
         return tableGroup.forEach((table) => {
           return (table.occupied = true);
         });
       });
 
+      console.log(reservedTablesToChangeState, 'Sta smo DOBILI U REZERVISAINM');
+
       setCurrentTableStates(currentTablesToChangeAvailability);
-
-      console.log(reservedTablesToChangeState);
-      // console.log(currentReservedTablesToChangeState, 'ovo je bla');
-
-      console.log(currentTablesStates, 'ovo Trazis');
     }
 
-    // console.log(
-    //   availableTablesIds,
-    //   'filtrirani samo oni koji imaju rezervacije'
-    // );
-  }, [listOfAllTables]);
+    if (reservedTablesIds.length === 0) {
+      currentTablesToChangeAvailability.forEach((table) => {
+        return (table.occupied = false);
+      });
+
+      setCurrentTableStates(currentTablesToChangeAvailability);
+    }
+
+    console.log(currentTablesToChangeAvailability, 'trenutni za POrmenu');
+  }, [listOfAllTables, currentDate, currentArrivingTime, currentLeavingTime]);
 
   // add or subtract one day from a current date by clicking on chevrons
-  const changeDayHandlerPlus = (e) => {
+  const changeDayHandlerPlus = () => {
     setCurrentDate((prevState) => addDays(new Date(prevState), 1));
   };
 
-  const changeDayHandlerMinus = (e) => {
+  const changeDayHandlerMinus = () => {
     setCurrentDate((prevState) => subDays(new Date(prevState), 1));
   };
 
-  const changeHourHandlerPlusArrivingTime = (e) => {
-    setCurrentArrivingTime((prevState) => addHours(new Date(prevState), 1));
+  const changeHourHandlerPlusArrivingTime = () => {
+    if (currentArrivingTime.getHours() >= 21) {
+      setCurrentArrivingTime(currentArrivingTime);
+    } else {
+      setCurrentArrivingTime((prevState) => addHours(new Date(prevState), 1));
+    }
   };
 
-  const changeHourHandlerMinusArrivingTime = (e) => {
-    setCurrentArrivingTime((prevState) => subHours(new Date(prevState), 1));
+  const changeHourHandlerMinusArrivingTime = () => {
+    if (currentArrivingTime.getHours() <= 12) {
+      setCurrentArrivingTime(currentArrivingTime);
+    } else {
+      setCurrentArrivingTime((prevState) => subHours(new Date(prevState), 1));
+    }
   };
 
-  const changeHourHandlerPlusLeavingTime = (e) => {
-    setCurrentLeavingTime((prevState) => addHours(new Date(prevState), 1));
+  const changeHourHandlerPlusLeavingTime = () => {
+    if (currentLeavingTime.getHours() >= 22) {
+      setCurrentLeavingTime(currentLeavingTime);
+    } else {
+      setCurrentLeavingTime((prevState) => addHours(new Date(prevState), 1));
+    }
   };
 
-  const changeHourHandlerMinusLeavingTime = (e) => {
-    setCurrentLeavingTime((prevState) => subHours(new Date(prevState), 1));
+  const changeHourHandlerMinusLeavingTime = () => {
+    if (currentLeavingTime.getHours() <= currentArrivingTime.getHours() + 1) {
+      setCurrentLeavingTime(currentLeavingTime);
+    } else {
+      setCurrentLeavingTime((prevState) => subHours(new Date(prevState), 1));
+    }
   };
 
   // Adding restaurant overview options - which tables are available at a given time
@@ -225,7 +374,7 @@ const TableMap = () => {
                     <DatePicker
                       label="Velg dato"
                       minDate={new Date()}
-                      maxDate={new Date('2022-01-30T21:00')}
+                      maxDate={twoWeeksInFuture}
                       inputFormat="dd/MM/yyyy"
                       disablePast
                       value={currentDate}
@@ -293,8 +442,8 @@ const TableMap = () => {
                   <Stack spacing={3}>
                     <MobileTimePicker
                       label="Velg avreise tid"
-                      minTime={new Date(0, 0, 0, 12)}
-                      maxTime={new Date(0, 0, 0, 21, 0)}
+                      minTime={new Date(0, 0, 0, currentMinLeavingTime, 0)}
+                      maxTime={new Date(0, 0, 0, 22, 0)}
                       disablePast
                       ampm={false}
                       minutesStep={15}

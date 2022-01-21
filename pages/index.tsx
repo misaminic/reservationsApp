@@ -267,44 +267,17 @@ const Home: NextPage = () => {
             return table;
           } else {
             const timeAlreadyUsed = table.reservedTimes.some((time) => {
-              // console.log(
-              //   table.reservedTimes.length === 0,
-              //   'iz else table.reservedTimes'
-              // );
-
-              // console.log(
-              //   new Date(time?.start),
-              //   new Date(time?.end),
-              //   'ovo je vreme iz baze'
-              // );
-              // console.log(
-              //   timeStartEndUserInput.start,
-              //   timeStartEndUserInput.end,
-              //   'ovo je vreme od korisnika'
-              // );
-
               const timeSlotNotReserved = _.isEqual(
                 { start: new Date(time?.start), end: new Date(time?.end) },
                 timeStartEndUserInput
               );
 
-              console.log('vreme je isto ', timeSlotNotReserved);
-
               return timeSlotNotReserved === true;
             });
-            console.log(
-              timeAlreadyUsed === false
-                ? table.id
-                : `${table.id} vreme popunjeno`
-            );
+
             return timeAlreadyUsed === false ? table : 'kurcina';
           }
         });
-
-      console.log(
-        availableTablesOnlyTheOneThatDontHaveCurrentTimeFrame,
-        'ovo je provera da li je vreme jednako'
-      );
 
       const availableTablesFilteredFromFalsyValues =
         availableTablesOnlyTheOneThatDontHaveCurrentTimeFrame.filter(

@@ -16,15 +16,15 @@ const BookTableManually = ({ table, size }) => {
   const { manuallyBookATable, setDate, dataFromDb, showTableAvailabilityMsg } =
     useAppContext();
 
-  const [arrivingTime, setArrivingTime] = useState('');
+  const [arrivingTime, setArrivingTime] = useState(new Date());
 
   const [arrivingTimeAsString, setArrivingTimeAsString] = useState('');
   const [leavingTimeAsString, setLeavingTimeAsString] = useState('');
 
-  const [leavingTime, setLeavingTime] = useState('');
+  const [leavingTime, setLeavingTime] = useState(new Date());
 
   const [timeStartEndUserInput, setTimeStartEndUserInput] = useState({});
-  const [currentDate, setCurrentDate] = useState('');
+  const [currentDate, setCurrentDate] = useState(new Date());
 
   const [isName, setIsName] = useState('');
   const [isEmail, setIsEmail] = useState('');
@@ -48,14 +48,73 @@ const BookTableManually = ({ table, size }) => {
       // const arrival = zonedTimeToUtc(arrivingTime, timeZone);
       // const leaving = zonedTimeToUtc(leavingTime, timeZone);
       // console.log(arrivingTime.toISOString());
+
+      const day = currentDate.getDate();
+      const month = currentDate.getMonth();
+      const year = currentDate.getFullYear();
+      const hourArrive = arrivingTime.getHours();
+      const minutesArrive = arrivingTime.getMinutes();
+      const hourLeave = leavingTime.getHours();
+      const minutesLeave = leavingTime.getMinutes();
+
+      const arrive = new Date(year, month, day, hourArrive, minutesArrive, 0);
+      const leave = new Date(year, month, day, hourLeave, minutesLeave, 0);
+
+      console.log(currentDate, 'datum iz Booked Manually');
+
       setTimeStartEndUserInput({
-        start: arrivingTime,
-        end: leavingTime,
+        start: arrive,
+        end: leave,
       });
       setArrivingTimeAsString(format(arrivingTime, 'H:mm'));
       setLeavingTimeAsString(format(leavingTime, 'H:mm'));
     }
-  }, [arrivingTime, leavingTime]);
+  }, [currentDate, arrivingTime, leavingTime]);
+
+  useEffect(() => {
+    // set minutes for arrivalTime and leavingTime to be 0, 15, 30 or 45
+    const day = currentDate.getDate();
+    const month = currentDate.getMonth();
+    const year = currentDate.getFullYear();
+    const hour = currentDate.getHours();
+    const minutes = currentDate.getMinutes();
+
+    // arrivingTime
+
+    if (minutes > 0 && minutes < 15) {
+      setArrivingTime(new Date(year, month, day, hour, 15));
+    }
+
+    if (minutes > 15 && minutes < 30) {
+      setArrivingTime(new Date(year, month, day, hour, 30));
+    }
+
+    if (minutes > 30 && minutes < 45) {
+      setArrivingTime(new Date(year, month, day, hour, 45));
+    }
+
+    if (minutes > 45) {
+      setArrivingTime(new Date(year, month, day, hour, 0));
+    }
+
+    // currentLeavingTime
+
+    if (minutes > 0 && minutes < 15) {
+      setLeavingTime(new Date(year, month, day, hour + 1, 15));
+    }
+
+    if (minutes > 15 && minutes < 30) {
+      setLeavingTime(new Date(year, month, day, hour + 1, 30));
+    }
+
+    if (minutes > 30 && minutes < 45) {
+      setLeavingTime(new Date(year, month, day, hour + 1, 45));
+    }
+
+    if (minutes > 45) {
+      setLeavingTime(new Date(year, month, day, hour + 1, 0));
+    }
+  }, []);
 
   const submitAndBookTheTable = (e) => {
     e.preventDefault();
