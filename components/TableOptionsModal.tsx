@@ -53,45 +53,45 @@ const TableOptionsModal = ({ table, size }) => {
         aria-describedby="modal-modal-description"
       >
         <Box sx={style}>
-          <div
-            className={`flex mb-8 ${
-              tableOptionsModalPart > 0 ? 'justify-between' : 'justify-end'
-            }`}
-          >
+          <div className={`flex mb-4 justify-between`}>
             {tableOptionsModalPart === 1 && (
               <>
                 <Button
                   variant="outlined"
-                  sx={{ mb: 3 }}
+                  sx={{ minWidth: 20, padding: '8px', mb: 3 }}
                   onClick={() => previousModalPart()}
                 >
-                  <ArrowBackIcon />
+                  <ArrowBackIcon fontSize="small" />
                 </Button>
               </>
             )}
 
+            <h3 className="text-2xl">{`BORD ${table.id}`}</h3>
+
             <Button
               variant="outlined"
-              sx={{ mb: 3 }}
+              size="small"
+              sx={{ minWidth: 20, mb: 3 }}
               onClick={() => closeOptionsModal()}
             >
-              <CloseIcon />
+              <CloseIcon fontSize="small" />
             </Button>
           </div>
           {tableOptionsModalPart === 0 && (
             <div className="flex flex-col">
               <Button
                 variant="contained"
+                size="large"
                 sx={{ mb: 3 }}
                 onClick={() => bookTheTable(1)}
               >
-                Book the table
+                BESTILL BORDET
               </Button>
-              <Button variant="contained" sx={{ mb: 3 }}>
-                Cancel reservation
+              <Button variant="contained" size="large" sx={{ mb: 3 }}>
+                AVBESTILLE BORDET
               </Button>
-              <Button variant="contained" sx={{ mb: 3 }}>
-                Lock the table
+              <Button variant="contained" size="large" sx={{ mb: 3 }}>
+                LÅSE BORDET
               </Button>
             </div>
           )}

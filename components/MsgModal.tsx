@@ -18,7 +18,7 @@ const MsgModal = () => {
     top: '50%',
     left: '50%',
     transform: 'translate(-50%, -50%)',
-    width: 400,
+    width: '320px',
     bgcolor: 'background.paper',
     border: '2px solid #000',
     boxShadow: 24,
@@ -34,10 +34,18 @@ const MsgModal = () => {
         aria-describedby="modal-modal-description"
       >
         <Box sx={style}>
-          <Typography id="modal-modal-title" variant="h6" component="h2">
+          <Typography
+            id="modal-modal-title"
+            variant="body1"
+            component="h2"
+            mb={3}
+          >
             {msg}
           </Typography>
-          <Button onClick={() => showTableAvailabilityMsg(false, '')}>
+          <Button
+            variant="contained"
+            onClick={() => showTableAvailabilityMsg(false, '')}
+          >
             OK
           </Button>
         </Box>

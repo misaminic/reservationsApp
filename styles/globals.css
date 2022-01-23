@@ -274,8 +274,93 @@ input[type='number'] {
   grid-area: invisible-element-7;
 }
 
+.rectangle-tables,
+.round-tables,
+.table51,
+.table52 {
+  cursor: pointer;
+}
+
+.date-and-time {
+  background: rgba(249, 250, 251, 0.9);
+  border-radius: 0.3rem;
+  margin-top: 2rem;
+  margin: 0 auto;
+  padding: 1rem;
+  padding-bottom: 1.5rem;
+}
+
+.restaurant-map {
+  position: relative;
+  opacity: 1;
+}
+
 /* Material UI components styles added */
 
-.MuiFormControl-root {
-  min-width: 260px;
+.MuiBox-root {
+  border: 0;
+  border-radius: 0.2rem;
+  outline: 0;
+  text-align: center;
+  max-width: 95vw;
+}
+
+.MuiBox-root:focus,
+.MuiBox-root:active {
+  border: 0;
+  outline: 0;
+}
+
+/* Media Queries */
+
+@media only screen and (min-width: 1024px) {
+  .restaurant-map {
+    position: relative;
+    opacity: 0.9;
+  }
+
+  .date-and-time {
+    padding: 1.2rem 1.5rem;
+  }
+
+  .rectangle-tables h3,
+  .round-tables h3 {
+    transform: rotate(270deg);
+  }
+
+  .table51,
+  .table52 {
+    transform: rotate(225deg) !important;
+  }
+}
+
+@media only screen and (max-width: 768px) {
+  body {
+    background-color: rgba(100, 116, 139, 1);
+  }
+
+  .date-and-time {
+    margin-top: 2rem;
+    width: 95vw;
+    padding: 0.4rem;
+    padding-bottom: 0.4rem;
+  }
+}
+
+@media only screen and (min-width: 768px) {
+  body {
+    background-image: url('../public/img/main-bg-5.jpg');
+    background-size: cover;
+    background-repeat: no-repeat;
+  }
+}
+
+@media only screen and (max-width: 408px) {
+  .sitting-area {
+    width: 95.5vw;
+  }
+
+  /* .MuiBox-root {
+    max-width: 95vw;
+  } */
 }

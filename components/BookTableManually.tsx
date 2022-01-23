@@ -9,25 +9,41 @@ import Button from '@mui/material/Button';
 import { useAppContext } from '../context/AppContext';
 import _ from 'lodash';
 import MsgModal from '../components/MsgModal';
-
-import { format, areIntervalsOverlapping, addHours } from 'date-fns';
+import { format, areIntervalsOverlapping, addDays, addHours } from 'date-fns';
+import { Email } from '@mui/icons-material';
 
 const BookTableManually = ({ table, size }) => {
   const { manuallyBookATable, setDate, dataFromDb, showTableAvailabilityMsg } =
     useAppContext();
 
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [timeStartEndUserInput, setTimeStartEndUserInput] = useState({});
+
   const [arrivingTime, setArrivingTime] = useState(new Date());
+  const [leavingTime, setLeavingTime] = useState(new Date());
 
   const [arrivingTimeAsString, setArrivingTimeAsString] = useState('');
   const [leavingTimeAsString, setLeavingTimeAsString] = useState('');
 
-  const [leavingTime, setLeavingTime] = useState(new Date());
-
-  const [timeStartEndUserInput, setTimeStartEndUserInput] = useState({});
-  const [currentDate, setCurrentDate] = useState(new Date());
-
   const [isName, setIsName] = useState('');
   const [isEmail, setIsEmail] = useState('');
+
+  const [minLeaveTimeForTimePicker, setMinLeaveTimeForTimePicker] = useState(0);
+
+  //   set maximum date in future for booking
+  const [twoWeeksInFuture, setTwoWeeksInFuture] = useState(
+    addDays(new Date(), 13)
+  );
+
+  useEffect(() => {
+    //   set default values/dates for arrivalTime and leavingTime only on first render
+    const day = currentDate.getDate();
+    const month = currentDate.getMonth();
+    const year = currentDate.getFullYear();
+
+    setArrivingTime(new Date(year, month, day, 12, 0));
+    setLeavingTime(new Date(year, month, day, 13, 0));
+  }, []);
 
   useEffect(() => {
     if (currentDate) {
@@ -60,7 +76,9 @@ const BookTableManually = ({ table, size }) => {
       const arrive = new Date(year, month, day, hourArrive, minutesArrive, 0);
       const leave = new Date(year, month, day, hourLeave, minutesLeave, 0);
 
-      console.log(currentDate, 'datum iz Booked Manually');
+      setMinLeaveTimeForTimePicker(
+        new Date(year, month, day, hourArrive, minutesArrive + 30, 0)
+      );
 
       setTimeStartEndUserInput({
         start: arrive,
@@ -118,6 +136,27 @@ const BookTableManually = ({ table, size }) => {
 
   const submitAndBookTheTable = (e) => {
     e.preventDefault();
+
+    if (isName.length < 2) {
+      showTableAvailabilityMsg(true, `SJEKK NAVNET`);
+      return;
+    }
+
+    const mailFormat = /^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/;
+    if (!isEmail.match(mailFormat) || isEmail.length < 4) {
+      showTableAvailabilityMsg(true, `SJEKK EMAIL`);
+      return;
+    }
+
+    if (arrivingTime.getHours() >= 21 && arrivingTime.getMinutes() >= 15) {
+      showTableAvailabilityMsg(true, `Et bord kan bookes senest klokka 21.15h`);
+      return;
+    }
+
+    if (arrivingTime.getHours() >= 0 && arrivingTime.getHours() < 12) {
+      showTableAvailabilityMsg(true, `Et bord kan ikke bookes før klokka 12h`);
+      return;
+    }
 
     if (table.reservedTimes?.length > 0) {
       console.log('book manually usao kad postoji rezervacija');
@@ -210,7 +249,7 @@ const BookTableManually = ({ table, size }) => {
             <DatePicker
               label="Velg dato"
               minDate={new Date()}
-              maxDate={new Date('2022-01-30T21:00')}
+              maxDate={twoWeeksInFuture}
               inputFormat="dd/MM/yyyy"
               disablePast
               value={currentDate}
@@ -221,7 +260,7 @@ const BookTableManually = ({ table, size }) => {
             />
 
             <MobileTimePicker
-              label="Velg ankomst tid"
+              label="Velg ankomsttid"
               minTime={new Date(0, 0, 0, 12)}
               maxTime={new Date(0, 0, 0, 21, 0)}
               disablePast
@@ -235,9 +274,9 @@ const BookTableManually = ({ table, size }) => {
             />
 
             <MobileTimePicker
-              label="Velg avreise tid"
-              minTime={new Date(0, 0, 0, 12)}
-              maxTime={new Date(0, 0, 0, 21, 0)}
+              label="Velg avreisetid"
+              minTime={minLeaveTimeForTimePicker}
+              maxTime={new Date(0, 0, 0, 22, 0)}
               disablePast
               ampm={false}
               minutesStep={15}
@@ -257,7 +296,7 @@ const BookTableManually = ({ table, size }) => {
                       sx={{ mb: 3 }}
                       type="text"
                       id="outlined-basic"
-                      label="Name"
+                      label="Navn"
                       variant="outlined"
                       name="name"
                       className="person__name-input"
@@ -282,7 +321,7 @@ const BookTableManually = ({ table, size }) => {
                       variant="contained"
                       onClick={(e) => submitAndBookTheTable(e)}
                     >
-                      SUBMIT
+                      BESTILL
                     </Button>
                   </div>
                 </form>

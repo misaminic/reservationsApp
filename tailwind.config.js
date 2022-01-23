@@ -11,10 +11,12 @@ module.exports = {
       },
       colors: {
         siva: '#f9fafb',
-        sivaBorder: '#64748b',
+        sivaBorder: 'rgb(245 158, 11, 0.2)',
         rose: '#f43f5e',
       },
     },
+    // sivaBorder: 'rgba(100, 116, 139, 1)',
+
     // colors: {
     //   transparent: 'transparent',
     //   current: 'currentColor',

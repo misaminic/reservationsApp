@@ -68,12 +68,10 @@ export const AppProvider = ({ children }) => {
   // Async function to help fetch items from the DB and pass params used to query DB
 
   const axiosFetch = async () => {
-    console.log(state.currentDate);
     const getData = await axios.get('/api/reserveTable', {
       params: { dateChosen: state.currentDate },
     });
     setDataFromDb(getData);
-    // console.log('ODradio FETCH OPET');
   };
 
   useEffect(() => {
@@ -84,7 +82,6 @@ export const AppProvider = ({ children }) => {
     const { listOfAllTables, currentDate } = state;
 
     if (currentDate) {
-      // console.log(listOfAllTables, currentDate, 'usao u SEND DAAAATA 2');
       fetch('/api/reserveTable', {
         method: 'POST',
         body: JSON.stringify({
@@ -110,15 +107,11 @@ export const AppProvider = ({ children }) => {
   useEffect(() => {
     if (dataFromDb.data?.reservations?.tables.length > 0) {
       updateListOfAllTables(dataFromDb.data.reservations.tables);
-      console.log('ide dataFromDb');
     } else {
-      console.log('idu default stolovi');
       updateListOfAllTables(freshCopyTableList);
-      console.log(freshCopyTableList, 'ovo ti je kao nova lista stolova');
     }
 
     if (state.tableManuallyBooked.id && state.tableSizeWhenManualBooking > 0) {
-      // console.log(state.tableManuallyBooked, 'usao u efekat');
       const currentList = state.listOfAllTables.filter((item) => {
         return item.tables.filter((table) => {
           // Case when disabled table is clicked
@@ -129,7 +122,6 @@ export const AppProvider = ({ children }) => {
 
           if (table.id === state.tableManuallyBooked?.id) {
             if (state.tableManuallyBooked?.reservedTimes.length > 0) {
-              console.log(state.tableManuallyBooked, 'ovo je manualni STO');
               const currentTimeToAddIndex =
                 state.tableManuallyBooked.reservedTimes.length - 1;
 
@@ -235,7 +227,6 @@ export const AppProvider = ({ children }) => {
   };
 
   const updateListOfAllTables = (updatedListOfAllTables) => {
-    // console.log(updatedListOfAllTables, 'iz update list');
     dispatch({
       type: UPDATE_LIST_OF_ALL_TABLES,
       payload: updatedListOfAllTables,

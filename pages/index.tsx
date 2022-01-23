@@ -462,23 +462,6 @@ const Home: NextPage = () => {
       .filter((item) => item !== undefined);
 
     tableThatIsAvailableAgain[0]?.available = true;
-
-    // getting only first two characters from the string=number=hour entered in the input for cancelling reservation hour
-    // const hourToBeRemoved = makeTableAvailableHour.slice(0, 2);
-
-    // looking at the array of hours when table was reserved and removing from it the hours we want table to be available
-    // using indexOf to find the number=hour
-    // const hoursToBeRemovedFromTheArray =
-    //   tableThatIsAvailableAgain[0]?.reservedTimes.indexOf(+hourToBeRemoved);
-    // // utilizing splice method to remove two items = first and the second reserved hour
-    // if (hoursToBeRemovedFromTheArray > -1) {
-    //   tableThatIsAvailableAgain[0]?.reservedTimes.splice(
-    //     hoursToBeRemovedFromTheArray,
-    //     2
-    //   );
-    // }
-    console.log(reservedTables, 'reserved iz makeAvailable');
-    console.log(allTables, 'all iz make available');
   };
 
   const makeTableAvailableFnByNumberDateTime = () => {};
@@ -635,7 +618,7 @@ const Home: NextPage = () => {
                               />
 
                               <MobileTimePicker
-                                label="Velg ankomst tid"
+                                label="Velg ankomsttid"
                                 minTime={new Date(0, 0, 0, 12)}
                                 maxTime={new Date(0, 0, 0, 21, 0)}
                                 disablePast
@@ -651,7 +634,7 @@ const Home: NextPage = () => {
                               />
 
                               <MobileTimePicker
-                                label="Velg avreise tid"
+                                label="Velg avreisetid"
                                 minTime={new Date(0, 0, 0, 12)}
                                 maxTime={new Date(0, 0, 0, 21, 0)}
                                 disablePast
