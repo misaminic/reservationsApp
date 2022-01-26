@@ -11,13 +11,14 @@ import MobileTimePicker from '@mui/lab/MobileTimePicker';
 import DesktopTimePicker from '@mui/lab/DesktopTimePicker';
 import DatePicker from '@mui/lab/DatePicker';
 import Stack from '@mui/material/Stack';
-import { format, areIntervalsOverlapping, addHours } from 'date-fns';
+import { format, areIntervalsOverlapping, addHours, addDays } from 'date-fns';
 import { zonedTimeToUtc } from 'date-fns-tz';
 import { useAppContext } from '../context/AppContext';
 import FormFinish from '../components/FormFinish';
 import freshCopyTableList from '../freshCopyTableList';
 import { animated } from 'react-spring';
 import { usePageAnimation } from '../styles/animations/pagesTransitions';
+import { useIsMount } from '../utils/utils';
 
 const Home: NextPage = () => {
   // using app context
@@ -35,16 +36,9 @@ const Home: NextPage = () => {
     axiosFetch,
   } = useAppContext();
 
+  const isMount = useIsMount();
+
   const { customAnimation }: any = usePageAnimation();
-
-  const novaFn = () => {
-    props.handleMail();
-    props.handleName();
-  };
-
-  // const [fade, setFade] = useState(isAnimated);
-
-  const [allTables, setAllTables] = useState(listOfAllTables);
 
   const [numberOfPeople, setNumberOfPeople] = useState(2);
 
@@ -56,58 +50,44 @@ const Home: NextPage = () => {
   const [makeTableAvailableNumber, setMakeTableAvailableNumber] = useState();
   const [makeTableAvailableHour, setMakeTableAvailableHour] = useState();
 
-  const [arrivingTime, setArrivingTime] = useState('');
+  const [arrivingTime, setArrivingTime] = useState(new Date());
+  const [leavingTime, setLeavingTime] = useState(new Date());
 
   const [arrivingTimeAsString, setArrivingTimeAsString] = useState('');
-
-  const [leavingTime, setLeavingTime] = useState('');
 
   const [timeStartEndUserInput, setTimeStartEndUserInput] = useState({});
 
   const [isName, setIsName] = useState('');
   const [isEmail, setIsEmail] = useState('');
 
-  const [currentDate, setCurrentDate] = useState('');
+  const [currentDate, setCurrentDate] = useState(new Date());
+  const [twoWeeksInFuture, setTwoWeeksInFuture] = useState(
+    addDays(new Date(), 13)
+  );
 
   const [reservationCycleStatus, setReservationCycleStatus] = useState(false);
 
-  // const [currentFormPartVisible, setCurrentFormPartVisible] = useState(0);
+  useEffect(() => {
+    //   set default values/dates for arrivalTime and leavingTime only on first render
+    const day = currentDate.getDate();
+    const month = currentDate.getMonth();
+    const year = currentDate.getFullYear();
 
-  const handleMail = (e) => {
-    setIsEmail(e.target.value);
-  };
-
-  const handleName = (e) => {
-    setIsName(e.target.value);
-  };
+    setArrivingTime(new Date(year, month, day, 12, 0));
+    setLeavingTime(new Date(year, month, day, 13, 0));
+  }, []);
 
   useEffect(() => {
     if (currentDate) {
       const dateFormatDbReady = currentDate.toString().slice(0, 15);
       setDate(dateFormatDbReady);
     }
-    console.log(dataFromDb.data?.reservations, 'PROMENA DATUMA');
+    console.log(dataFromDb, 'PROMENA DATUMA');
   }, [currentDate]);
-
-  useEffect(() => {
-    if (dataFromDb.data?.reservations?.tables.length > 0) {
-      updateListOfAllTables(dataFromDb.data.reservations.tables);
-      console.log('ide dataFromDb');
-    } else {
-      console.log('idu default stolovi');
-      updateListOfAllTables(freshCopyTableList);
-      console.log(freshCopyTableList, 'ovo ti je kao nova lista stolova');
-    }
-  }, [dataFromDb, currentTableReserved, currentDate]);
-
-  useEffect(() => {
-    console.log(allTables, 'Najnoviji svi stolovi');
-  }, [allTables]);
 
   useEffect(() => {
     if (arrivingTime && leavingTime) {
       // const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
       // const arrival = zonedTimeToUtc(arrivingTime, timeZone);
       // const leaving = zonedTimeToUtc(leavingTime, timeZone);
       // console.log(arrivingTime.toISOString());
@@ -119,63 +99,46 @@ const Home: NextPage = () => {
     }
   }, [arrivingTime, leavingTime]);
 
-  // useEffect(() => {
-  //   // console.log(currentTableReserved?.id, 'iz efekta trenutni sto');
-  //   if (currentTableReserved?.id) {
-  //     const reservedTablesWithoutFalsyValues = reservedTables.filter(
-  //       (table) => table !== Boolean
-  //     );
-
-  //     const reservedTablesDbReady = reservedTablesWithoutFalsyValues.filter(
-  //       (table) => {
-  //         return table?.id !== currentTableReserved?.id;
-  //       }
-  //     );
-
-  //     setReservedTables([...reservedTablesDbReady, currentTableReserved]);
-  //   }
-  // }, [currentTableReserved]);
-
   useEffect(() => {
+    console.log('usao da uradi suitable', new Date());
     if (numberOfPeople === 1) {
-      const getAllTablesForTheSizeOfGroup = allTables.filter((item) => {
+      const getAllTablesForTheSizeOfGroup = listOfAllTables.filter((item) => {
         return item.key === 2;
       });
       setSuitableTableSize(getAllTablesForTheSizeOfGroup);
     } else if (numberOfPeople === 3) {
-      const getAllTablesForTheSizeOfGroup = allTables.filter((item) => {
+      const getAllTablesForTheSizeOfGroup = listOfAllTables.filter((item) => {
         return item.key === 4;
       });
       setSuitableTableSize(getAllTablesForTheSizeOfGroup);
     } else {
-      const getAllTablesForTheSizeOfGroup = allTables.filter((item) => {
+      console.log('usao da uradi suitable i to u njegov else');
+      const getAllTablesForTheSizeOfGroup = listOfAllTables.filter((item) => {
         return item.key === numberOfPeople;
       });
-
       setSuitableTableSize(getAllTablesForTheSizeOfGroup);
     }
-  }, [numberOfPeople, allTables, listOfAllTables]);
+  }, [numberOfPeople, listOfAllTables, dataFromDb]);
 
   useEffect(() => {
-    console.log(currentTableReserved, 'usao u zavrsni USEEFFEC');
     if (currentTableReserved) {
-      const currentReservedTableInAllTables = allTables.filter((item) => {
+      const currentReservedTableInAllTables = listOfAllTables.filter((item) => {
         return item.tables.filter((table) => {
-          // console.log(table, ' table u svi stolovi');
-          // console.log(table.id, 'table ID');
-          // console.log(currentTableReserved?.id, 'crt table ID');
           if (table.id === currentTableReserved?.id) {
             const currentTimeToAddIndex =
               currentTableReserved.reservedTimes.length - 1;
 
             console.log(
+              currentTableReserved,
+              'sto trenutni',
               currentTableReserved?.reservedTimes[currentTimeToAddIndex],
-              'ovo je iz Zadnjeg useEFFECT'
+              'vreme sve ovo je iz zadnjeg useEFFECT'
             );
 
             table?.customers = [
               ...table.customers,
               {
+                tableNumber: table.id,
                 name: isName,
                 email: isEmail,
                 time: currentTableReserved?.reservedTimes[
@@ -194,13 +157,11 @@ const Home: NextPage = () => {
         });
       });
     }
-
-    // setAllTables(allTables)
-    updateListOfAllTables(allTables);
-
-    // console.log(currentReservedTableInAllTables, 'nadjen sto poslednji UseEff');
-    // console.log(reservedTables, 'rezervisani poslednji useEff');
-    // console.log(allTables, 'svi stolovi poslednji useEff');
+    console.log(
+      currentReservedTableInAllTables,
+      'listOfAllTable trenutak pre nego sto se apdejtuje'
+    );
+    updateListOfAllTables(currentReservedTableInAllTables);
 
     if (currentTableReserved?.id) {
       const reservedTablesWithoutFalsyValues = reservedTables.filter(
@@ -222,9 +183,17 @@ const Home: NextPage = () => {
   }, [reservationCycleStatus]);
 
   useEffect(() => {
-    sendData();
-    axiosFetch();
+    if (isMount) {
+      return;
+    } else {
+      sendData();
+      axiosFetch();
+    }
   }, [reservedTables]);
+
+  useEffect(() => {
+    axiosFetch();
+  }, [currentDate, arrivingTime, leavingTime, numberOfPeople]);
 
   const changeNumberOfPeople = (e) => {
     const operator = e.target.textContent;
@@ -244,38 +213,56 @@ const Home: NextPage = () => {
   };
 
   const checkTableAvailability = () => {
+    // axiosFetch();
     if (!arrivingTime || !leavingTime) {
       showTableAvailabilityMsg(
         true,
         `Sjekk ${arrivingTime ? 'avreise' : 'ankomst'} tid`
       );
+      return;
+    }
+
+    if (arrivingTime.getHours() >= 0 && arrivingTime.getHours() < 12) {
+      showTableAvailabilityMsg(true, `Et bord kan ikke bookes før klokka 12h`);
+      return;
+    }
+
+    if (arrivingTime.getHours() >= 21 && arrivingTime.getMinutes() >= 15) {
+      showTableAvailabilityMsg(true, `Et bord kan bookes senest klokka 21.15h`);
+      return;
+    }
+    if (leavingTime.getHours() >= 22 && leavingTime.getMinutes() >= 1) {
+      showTableAvailabilityMsg(true, `Senest avreisetid er klokka 22h`);
+      return;
     } else {
       // getting all the tables and then each table's reservedTimes property
       // applying time library's function to check if intervals are overlapping
       // this returns array with boolean values, true if they are overlapping
-
+      console.log(suitableTableSize[0], 'SUITABLE TABLES SIZE');
       const allAvailableTablesForGroupSize = suitableTableSize[0].tables.filter(
         (table) => {
           return table.available === true && table;
         }
       );
 
-      // console.log(allAvailableTablesForGroupSize, 'SAD svi dostupni');
+      console.log(allAvailableTablesForGroupSize, 'Svi dostupni');
       const availableTablesOnlyTheOneThatDontHaveCurrentTimeFrame =
         allAvailableTablesForGroupSize.map((table) => {
           if (table.reservedTimes.length === 0) {
             return table;
           } else {
             const timeAlreadyUsed = table.reservedTimes.some((time) => {
-              const timeSlotNotReserved = _.isEqual(
+              const isTimeSlotNotReserved = _.isEqual(
                 { start: new Date(time?.start), end: new Date(time?.end) },
                 timeStartEndUserInput
               );
 
-              return timeSlotNotReserved === true;
+              return isTimeSlotNotReserved;
             });
 
-            return timeAlreadyUsed === false ? table : 'kurcina';
+            console.log(timeAlreadyUsed, 'vreme korisceno');
+
+            return timeAlreadyUsed === false ? table : null;
           }
         });
 
@@ -284,11 +271,17 @@ const Home: NextPage = () => {
           (item) => item !== null || undefined
         );
 
+      console.log(
+        availableTablesFilteredFromFalsyValues,
+        'oni koji nemaju vec to vreme uneto'
+      );
+
       if (availableTablesFilteredFromFalsyValues.length === 0) {
         showTableAvailabilityMsg(
           true,
           `Ingen ledig bord til ${numberOfPeople} personer klokka ${arrivingTimeAsString}h. Prøv gjerne et annet tidspunkt`
         );
+        return;
       }
 
       const availableTablesOnlyTheOneThatDontHaveCurrentTimeFrameAndTimeFramesNotOverlapping =
@@ -297,13 +290,13 @@ const Home: NextPage = () => {
             return table;
           } else {
             return table?.reservedTimes?.map((time) => {
-              // console.log(
-              //   { start: new Date(time.start), end: new Date(time.end) },
-              //   time,
-              //   'vreme u bazi',
-              //   timeStartEndUserInput,
-              //   'user vreme'
-              // );
+              console.log(
+                { start: new Date(time.start), end: new Date(time.end) },
+                time,
+                'vreme u bazi',
+                timeStartEndUserInput,
+                'user vreme'
+              );
               const checkIfTimesOverlapping = areIntervalsOverlapping(
                 { start: new Date(time?.start), end: new Date(time?.end) },
                 timeStartEndUserInput,
@@ -329,30 +322,28 @@ const Home: NextPage = () => {
           true,
           `Ingen ledig bord til ${numberOfPeople} personer klokka ${arrivingTimeAsString}h. Prøv gjerne et annet tidspunkt`
         );
+        return;
       }
 
       const availableTablesFiltered =
         availableTablesOnlyTheOneThatDontHaveCurrentTimeFrameAndTimeFramesNotOverlapping.filter(
           (item) => {
             if (item !== undefined) {
-              console.log(item[0], 'sta je ITEM');
+              // console.log(item[0], 'sta je ITEM');
               return item[0] !== null;
             } else {
-              console.log('item ti undefined');
+              // console.log('item ti undefined');
               return;
             }
           }
         );
-
-      console.log(availableTablesFiltered, 'filtered sad');
 
       if (availableTablesFiltered.length === 0) {
         showTableAvailabilityMsg(
           true,
           `Ingen ledig bord til ${numberOfPeople} personer klokka ${arrivingTimeAsString}h. Prøv gjerne et annet tidspunkt`
         );
-
-        // setCheckIfBiggerTableSizeAvailable(true);
+        return;
       }
 
       // pick table randomly
@@ -367,8 +358,8 @@ const Home: NextPage = () => {
         setCurrentTableReserved(availableTablesFiltered[randomNumber]);
         changeCurrentFormPartVisible(1);
         console.log(
-          availableTablesFiltered[randomNumber]
-          // 'available table kad je vise itema'
+          availableTablesFiltered[randomNumber],
+          'available table kad je vise itema'
         );
       } else {
         changeAnimationStatus();
@@ -376,15 +367,15 @@ const Home: NextPage = () => {
         changeCurrentFormPartVisible(1);
 
         console.log(
-          availableTablesFiltered[0]
-          // 'available table kad je jedan item'
+          availableTablesFiltered[0],
+          'available table kad je jedan item'
         );
       }
     }
   };
 
   const bookTableByTableNumber = () => {
-    let tableThatIsBookedByTableNumber = allTables
+    let tableThatIsBookedByTableNumber = listOfAllTables
       .map((tableGroup) => {
         return tableGroup.tables.find((table) => {
           return table.id.toString() === tableBookedByTableNumber;
@@ -392,12 +383,12 @@ const Home: NextPage = () => {
       })
       .filter((item) => item !== undefined);
     tableThatIsBookedByTableNumber[0]?.available = false;
-    console.log(allTables, 'all iz book by number');
-    console.log(reservedTables, ' reserved iz book by number');
+    // console.log(allTables, 'all iz book by number');
+    // console.log(reservedTables, ' reserved iz book by number');
   };
 
   const bookTableByTableNumberDateAndTime = () => {
-    let tableThatIsBookedByTableNumber = allTables
+    let tableThatIsBookedByTableNumber = listOfAllTables
       .map((tableGroup) => {
         return tableGroup.tables.find((table) => {
           return table.id.toString() === tableBookedByTableNumber;
@@ -405,18 +396,18 @@ const Home: NextPage = () => {
       })
       .filter((item) => item !== undefined);
 
-    console.log(tableThatIsBookedByTableNumber, 'ovo je sto KOJI TREBA');
+    // console.log(tableThatIsBookedByTableNumber, 'ovo je sto KOJI TREBA');
 
     const timeAlreadyUsed =
       tableThatIsBookedByTableNumber[0].reservedTimes.some((time) => {
-        console.log(tableThatIsBookedByTableNumber[0], 'TA|LE u SOME');
-        console.log(time, 'bookinh tim');
-        console.log(timeStartEndUserInput, 'User bookinh tim');
+        // console.log(tableThatIsBookedByTableNumber[0], 'TA|LE u SOME');
+        // console.log(time, 'bookinh tim');
+        // console.log(timeStartEndUserInput, 'User bookinh tim');
         const timeSlotNotResereved = _.isEqual(time, timeStartEndUserInput);
 
         return timeSlotNotResereved;
       });
-    console.log(timeAlreadyUsed, 'timeAlreadYYYYYY');
+    // console.log(timeAlreadyUsed, 'timeAlreadYYYYYY');
     if (timeAlreadyUsed === false) {
       const timesOverlapping =
         tableThatIsBookedByTableNumber[0].reservedTimes.map((time) => {
@@ -442,18 +433,20 @@ const Home: NextPage = () => {
           true,
           `Bordet nummer: ${tableThatIsBookedByTableNumber[0].id} er ikke ledig klokka ${arrivingTimeAsString}h. Prøv gjerne et annet tidspunkt`
         );
+        return;
       }
     } else {
       showTableAvailabilityMsg(
         true,
         `Bordet nummer:${tableThatIsBookedByTableNumber[0].id} er ikke ledig klokka ${arrivingTimeAsString}h. Prøv gjerne et annet tidspunkt`
       );
+      return;
     }
   };
 
   const makeTableAvailableFn = () => {
     // getting all tables and finding by Id the one we want to make available
-    let tableThatIsAvailableAgain = allTables
+    let tableThatIsAvailableAgain = listOfAllTables
       .map((tableGroup) => {
         return tableGroup.tables.find((table) => {
           return table.id.toString() === makeTableAvailableNumber;
@@ -464,11 +457,8 @@ const Home: NextPage = () => {
     tableThatIsAvailableAgain[0]?.available = true;
   };
 
-  const makeTableAvailableFnByNumberDateTime = () => {};
-
   const submitNameEmailAndBookTheTable = (e) => {
     e.preventDefault();
-    console.log(e);
     const name = e.target.form[0].value;
     const email = e.target.form[1].value;
 
@@ -512,6 +502,7 @@ const Home: NextPage = () => {
           customers: [
             ...currentTableReserved[0].customers,
             {
+              tableNumber: currentTableReserved[0].id,
               name: isName,
               email: isEmail,
               time: timeStartEndUserInput,
@@ -522,18 +513,22 @@ const Home: NextPage = () => {
         changeCurrentFormPartVisible(2);
         // changeAnimationStatus();
       } else {
-        console.log(currentTableReserved, 'usao u else');
-        console.log(timeStartEndUserInput, 'usao u else');
+        console.log(currentTableReserved, 'usao u else i ovo je crt table');
+        console.log(
+          timeStartEndUserInput,
+          'usao u else i ovo je vreme koje je korisnik uneo'
+        );
         setCurrentTableReserved({
           ...currentTableReserved,
           reservedTimes: [
             {
-              start: timeStartEndUserInput.start,
-              end: timeStartEndUserInput.end,
+              start: new Date(timeStartEndUserInput.start),
+              end: new Date(timeStartEndUserInput.end),
             },
           ],
           customers: [
             {
+              tableNumber: currentTableReserved.id,
               name: isName,
               email: isEmail,
               time: timeStartEndUserInput,
@@ -542,20 +537,8 @@ const Home: NextPage = () => {
         });
         setReservationCycleStatus(!reservationCycleStatus);
         changeCurrentFormPartVisible(2);
-        // changeAnimationStatus();
       }
     }
-
-    // if there is a table that could be reserved, check for requested hours and if available
-    // reserved the table for the specified hours and also add name and email for the reservation
-    // if (!currentTableReserved) {
-    //   setCurrentTableReserved({
-    //     ...currentTableReserved[0],
-    //     name: isName,
-    //     email: isEmail,
-    //     reservedTimes: [timeStartEndUserInput],
-    //   });
-    // }
   };
 
   return (
@@ -605,7 +588,7 @@ const Home: NextPage = () => {
                               <DatePicker
                                 label="Velg dato"
                                 minDate={new Date()}
-                                maxDate={new Date('2022-01-15T21:00')}
+                                maxDate={twoWeeksInFuture}
                                 inputFormat="dd/MM/yyyy"
                                 disablePast
                                 value={currentDate}
@@ -636,7 +619,7 @@ const Home: NextPage = () => {
                               <MobileTimePicker
                                 label="Velg avreisetid"
                                 minTime={new Date(0, 0, 0, 12)}
-                                maxTime={new Date(0, 0, 0, 21, 0)}
+                                maxTime={new Date(0, 0, 0, 22, 0)}
                                 disablePast
                                 ampm={false}
                                 minutesStep={15}

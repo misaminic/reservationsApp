@@ -6,7 +6,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
   if (req.method === 'POST') {
     const oneReservation = req.body.state;
-    console.log(oneReservation.tables, 'ovo je Reservation state');
+    console.log(oneReservation, 'ovo je iz POST METODE state');
 
     const db = client.db();
 
@@ -31,9 +31,8 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
   if (req.method === 'GET') {
     const db = client.db();
-
     const query = req.query;
-    console.log(query.dateChosen, 'ovo je kveri');
+    console.log(query.dateChosen, 'ovo je kveri iz GET metode');
     try {
       const documents = await db
         .collection('reservations')

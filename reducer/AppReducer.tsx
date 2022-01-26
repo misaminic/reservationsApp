@@ -7,6 +7,7 @@ import {
   SHOW_TABLE_OPTIONS_MODAL,
   CHANGE_TABLE_OPTIONS_MODAL_PART,
   MANUALLY_BOOK_A_TABLE,
+  SEARCH_RESERVATIONS_MODAL,
 } from '../actions';
 
 const app_reducer = (state, action) => {
@@ -28,6 +29,9 @@ const app_reducer = (state, action) => {
   }
   if (action.type === SHOW_TABLE_OPTIONS_MODAL) {
     return { ...state, tableOptions: !state.tableOptions };
+  }
+  if (action.type === SEARCH_RESERVATIONS_MODAL) {
+    return { ...state, showSearchReservations: !state.showSearchReservations };
   }
   if (action.type === CHANGE_TABLE_OPTIONS_MODAL_PART) {
     const currentPart = action.payload;

@@ -14,12 +14,14 @@ import {
   SHOW_TABLE_OPTIONS_MODAL,
   CHANGE_TABLE_OPTIONS_MODAL_PART,
   MANUALLY_BOOK_A_TABLE,
+  SEARCH_RESERVATIONS_MODAL,
 } from '../actions';
 
 const initialState = {
   tableAvailabilityMsg: { show: false, msg: '' },
   showTableAvailabilityMsg: { show: false, msg: '' },
   tableOptions: false,
+  showSearchReservations: false,
   tableOptionsModalPart: 0,
   listOfAllTables: tables,
   currentDate: '',
@@ -101,16 +103,13 @@ export const AppProvider = ({ children }) => {
   useEffect(() => {
     if (dataFromDb.data?.reservations?.tables) {
       updateListOfAllTables(dataFromDb.data.reservations.tables);
-    }
-  }, [dataFromDb]);
-
-  useEffect(() => {
-    if (dataFromDb.data?.reservations?.tables.length > 0) {
-      updateListOfAllTables(dataFromDb.data.reservations.tables);
     } else {
       updateListOfAllTables(freshCopyTableList);
     }
+    console.log(dataFromDb, 'data from DB iz useEffect-a');
+  }, [dataFromDb]);
 
+  useEffect(() => {
     if (state.tableManuallyBooked.id && state.tableSizeWhenManualBooking > 0) {
       const currentList = state.listOfAllTables.filter((item) => {
         return item.tables.filter((table) => {
@@ -131,6 +130,7 @@ export const AppProvider = ({ children }) => {
               table?.customers = [
                 ...table.customers,
                 {
+                  tableNumber: state.tableManuallyBooked.id,
                   name: state.tableManuallyBooked.customers[
                     currentCustomerToAddIndex
                   ].name.toLowerCase(),
@@ -158,6 +158,7 @@ export const AppProvider = ({ children }) => {
 
               table?.customers = [
                 {
+                  tableNumber: state.tableManuallyBooked.id,
                   name: state.tableManuallyBooked.customers[
                     currentCustomerToAddIndex
                   ].name.toLowerCase(),
@@ -246,6 +247,12 @@ export const AppProvider = ({ children }) => {
     });
   };
 
+  const showSearchReservationsModal = () => {
+    dispatch({
+      type: SEARCH_RESERVATIONS_MODAL,
+    });
+  };
+
   const changeTableOptionsModalPart = (currentPart) => {
     dispatch({
       type: CHANGE_TABLE_OPTIONS_MODAL_PART,
@@ -273,6 +280,7 @@ export const AppProvider = ({ children }) => {
         changeCurrentFormPartVisible,
         showTableAvailabilityMsg,
         showTableOptionsModal,
+        showSearchReservationsModal,
         changeTableOptionsModalPart,
         manuallyBookATable,
       }}

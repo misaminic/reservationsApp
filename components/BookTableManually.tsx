@@ -10,7 +10,6 @@ import { useAppContext } from '../context/AppContext';
 import _ from 'lodash';
 import MsgModal from '../components/MsgModal';
 import { format, areIntervalsOverlapping, addDays, addHours } from 'date-fns';
-import { Email } from '@mui/icons-material';
 
 const BookTableManually = ({ table, size }) => {
   const { manuallyBookATable, setDate, dataFromDb, showTableAvailabilityMsg } =
@@ -60,7 +59,6 @@ const BookTableManually = ({ table, size }) => {
   useEffect(() => {
     if (arrivingTime && leavingTime) {
       // const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-
       // const arrival = zonedTimeToUtc(arrivingTime, timeZone);
       // const leaving = zonedTimeToUtc(leavingTime, timeZone);
       // console.log(arrivingTime.toISOString());
@@ -89,50 +87,52 @@ const BookTableManually = ({ table, size }) => {
     }
   }, [currentDate, arrivingTime, leavingTime]);
 
-  useEffect(() => {
-    // set minutes for arrivalTime and leavingTime to be 0, 15, 30 or 45
-    const day = currentDate.getDate();
-    const month = currentDate.getMonth();
-    const year = currentDate.getFullYear();
-    const hour = currentDate.getHours();
-    const minutes = currentDate.getMinutes();
+  //   Effect which is adjusting minutes so we skip having minutes which are "round"
+  // probably won't be needed with the current setup
+  //   useEffect(() => {
+  //     // set minutes for arrivalTime and leavingTime to be 0, 15, 30 or 45
+  //     const day = currentDate.getDate();
+  //     const month = currentDate.getMonth();
+  //     const year = currentDate.getFullYear();
+  //     const hour = currentDate.getHours();
+  //     const minutes = currentDate.getMinutes();
 
-    // arrivingTime
+  //     // arrivingTime
 
-    if (minutes > 0 && minutes < 15) {
-      setArrivingTime(new Date(year, month, day, hour, 15));
-    }
+  //     if (minutes > 0 && minutes < 15) {
+  //       setArrivingTime(new Date(year, month, day, hour, 15));
+  //     }
 
-    if (minutes > 15 && minutes < 30) {
-      setArrivingTime(new Date(year, month, day, hour, 30));
-    }
+  //     if (minutes > 15 && minutes < 30) {
+  //       setArrivingTime(new Date(year, month, day, hour, 30));
+  //     }
 
-    if (minutes > 30 && minutes < 45) {
-      setArrivingTime(new Date(year, month, day, hour, 45));
-    }
+  //     if (minutes > 30 && minutes < 45) {
+  //       setArrivingTime(new Date(year, month, day, hour, 45));
+  //     }
 
-    if (minutes > 45) {
-      setArrivingTime(new Date(year, month, day, hour, 0));
-    }
+  //     if (minutes > 45) {
+  //       setArrivingTime(new Date(year, month, day, hour, 0));
+  //     }
 
-    // currentLeavingTime
+  //     // currentLeavingTime
 
-    if (minutes > 0 && minutes < 15) {
-      setLeavingTime(new Date(year, month, day, hour + 1, 15));
-    }
+  //     if (minutes > 0 && minutes < 15) {
+  //       setLeavingTime(new Date(year, month, day, hour + 1, 15));
+  //     }
 
-    if (minutes > 15 && minutes < 30) {
-      setLeavingTime(new Date(year, month, day, hour + 1, 30));
-    }
+  //     if (minutes > 15 && minutes < 30) {
+  //       setLeavingTime(new Date(year, month, day, hour + 1, 30));
+  //     }
 
-    if (minutes > 30 && minutes < 45) {
-      setLeavingTime(new Date(year, month, day, hour + 1, 45));
-    }
+  //     if (minutes > 30 && minutes < 45) {
+  //       setLeavingTime(new Date(year, month, day, hour + 1, 45));
+  //     }
 
-    if (minutes > 45) {
-      setLeavingTime(new Date(year, month, day, hour + 1, 0));
-    }
-  }, []);
+  //     if (minutes > 45) {
+  //       setLeavingTime(new Date(year, month, day, hour + 1, 0));
+  //     }
+  //   }, []);
 
   const submitAndBookTheTable = (e) => {
     e.preventDefault();
@@ -155,6 +155,11 @@ const BookTableManually = ({ table, size }) => {
 
     if (arrivingTime.getHours() >= 0 && arrivingTime.getHours() < 12) {
       showTableAvailabilityMsg(true, `Et bord kan ikke bookes før klokka 12h`);
+      return;
+    }
+
+    if (leavingTime.getHours() >= 22 && leavingTime.getMinutes() >= 1) {
+      showTableAvailabilityMsg(true, `Senest avreisetid er klokka 22h`);
       return;
     }
 
@@ -209,7 +214,12 @@ const BookTableManually = ({ table, size }) => {
             reservedTimes: [...table.reservedTimes, timeStartEndUserInput],
             customers: [
               ...table.customers,
-              { name: isName, email: isEmail, time: timeStartEndUserInput },
+              {
+                tableNumber: table.id,
+                name: isName,
+                email: isEmail,
+                time: timeStartEndUserInput,
+              },
             ],
           };
           if (updatedTable) {
@@ -227,7 +237,12 @@ const BookTableManually = ({ table, size }) => {
         ...table,
         reservedTimes: [timeStartEndUserInput],
         customers: [
-          { name: isName, email: isEmail, time: timeStartEndUserInput },
+          {
+            tableNumber: table.id,
+            name: isName,
+            email: isEmail,
+            time: timeStartEndUserInput,
+          },
         ],
       };
       if (updatedTable) {

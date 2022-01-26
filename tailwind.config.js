@@ -13,6 +13,7 @@ module.exports = {
         siva: '#f9fafb',
         sivaBorder: 'rgb(245 158, 11, 0.2)',
         rose: '#f43f5e',
+        sivaBlockedTable: 'rgba(100, 116, 139, 1)',
       },
     },
     // sivaBorder: 'rgba(100, 116, 139, 1)',

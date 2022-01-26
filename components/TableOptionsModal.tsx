@@ -7,6 +7,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import Modal from '@mui/material/Modal';
 import { useAppContext } from '../context/AppContext';
 import BookTableManually from './BookTableManually';
+import MsgModal from '../components/MsgModal';
 
 // type msgTypes = { show?: boolean; msg?: string };
 
@@ -16,6 +17,11 @@ const TableOptionsModal = ({ table, size }) => {
     showTableOptionsModal,
     changeTableOptionsModalPart,
     tableOptionsModalPart,
+    showTableAvailabilityMsg,
+    listOfAllTables,
+    updateListOfAllTables,
+    sendData,
+    axiosFetch,
   } = useAppContext();
 
   const closeOptionsModal = () => {
@@ -44,6 +50,27 @@ const TableOptionsModal = ({ table, size }) => {
     changeTableOptionsModalPart(currentPart);
   };
 
+  const lockUnlockATable = (currentPart) => {
+    // await axiosFetch();
+    changeTableOptionsModalPart(currentPart);
+    const updateTablesAndAddLockedOnes = listOfAllTables.map((tableGroups) => {
+      return tableGroups.tables.map((item) => {
+        if (item.id === table.id) {
+          item.available = !table.available;
+          return item;
+        } else {
+          return item;
+        }
+      });
+    });
+    updateListOfAllTables(listOfAllTables);
+    sendData();
+    showTableAvailabilityMsg(
+      true,
+      `Bordet har blitt låst ${table.available === true ? 'opp' : ''}`
+    );
+  };
+
   return (
     <>
       <Modal
@@ -53,7 +80,11 @@ const TableOptionsModal = ({ table, size }) => {
         aria-describedby="modal-modal-description"
       >
         <Box sx={style}>
-          <div className={`flex mb-4 justify-between`}>
+          <div
+            className={`flex mb-4 ${
+              tableOptionsModalPart !== 2 ? 'justify-between' : 'justify-center'
+            }`}
+          >
             {tableOptionsModalPart === 1 && (
               <>
                 <Button
@@ -65,18 +96,42 @@ const TableOptionsModal = ({ table, size }) => {
                 </Button>
               </>
             )}
+            {tableOptionsModalPart !== 2 ? (
+              <h3 className="text-2xl">{`BORD ${table.id}`}</h3>
+            ) : null}
+            {tableOptionsModalPart === 2 ? (
+              <div className="flex flex-col items-center">
+                <Button variant="contained" sx={{ mt: 3 }}>
+                  {tableOptionsModalPart === 2
+                    ? `BORDET HAR BLITT LÅST ${
+                        table.available === true ? 'OPP' : ''
+                      }`
+                    : ''}
+                </Button>
 
-            <h3 className="text-2xl">{`BORD ${table.id}`}</h3>
+                <Button
+                  variant="contained"
+                  size="medium"
+                  sx={{ minWidth: 20, mt: 3, mb: 3 }}
+                  onClick={() => closeOptionsModal()}
+                >
+                  OK
+                </Button>
+              </div>
+            ) : null}
 
-            <Button
-              variant="outlined"
-              size="small"
-              sx={{ minWidth: 20, mb: 3 }}
-              onClick={() => closeOptionsModal()}
-            >
-              <CloseIcon fontSize="small" />
-            </Button>
+            {tableOptionsModalPart !== 2 ? (
+              <Button
+                variant="outlined"
+                size="small"
+                sx={{ minWidth: 20, mb: 3 }}
+                onClick={() => closeOptionsModal()}
+              >
+                <CloseIcon fontSize="small" />
+              </Button>
+            ) : null}
           </div>
+
           {tableOptionsModalPart === 0 && (
             <div className="flex flex-col">
               <Button
@@ -90,8 +145,18 @@ const TableOptionsModal = ({ table, size }) => {
               <Button variant="contained" size="large" sx={{ mb: 3 }}>
                 AVBESTILLE BORDET
               </Button>
+              <Button
+                variant="contained"
+                size="large"
+                sx={{ mb: 3 }}
+                onClick={() => lockUnlockATable(2)}
+              >
+                {`${
+                  table.available === true ? 'LÅSE BORDET' : 'LÅSE OPP BORDET'
+                }`}
+              </Button>
               <Button variant="contained" size="large" sx={{ mb: 3 }}>
-                LÅSE BORDET
+                SE ALLE BESTILLINGER PÅ BORDET
               </Button>
             </div>
           )}
@@ -102,6 +167,11 @@ const TableOptionsModal = ({ table, size }) => {
               </>
             )}
           </>
+          {/* {tableOptionsModalPart === 2 && (
+            <>
+              <MsgModal />
+            </>
+          )} */}
         </Box>
       </Modal>
     </>

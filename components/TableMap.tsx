@@ -1,5 +1,4 @@
 import { useState, useEffect } from 'react';
-import Image from 'next/image';
 import { useAppContext } from '../context/AppContext';
 import TableOptionsModal from './TableOptionsModal';
 import DateAdapter from '@mui/lab/AdapterDateFns';
@@ -21,14 +20,17 @@ import {
 import _ from 'lodash';
 import tables from '../amountOfTables';
 import MobileTimePicker from '@mui/lab/MobileTimePicker';
+import SearchReservationsModal from './SearchReservationsModal';
 
 const TableMap = () => {
   const {
     listOfAllTables,
     showTableOptionsModal,
+    showSearchReservationsModal,
     tablesStates,
     setDate,
     dataFromDb,
+    axiosFetch,
   } = useAppContext();
 
   const [currentTable, setCurrentTable] = useState({});
@@ -44,6 +46,17 @@ const TableMap = () => {
     addDays(new Date(), 13)
   );
 
+  const [
+    currentTablesToChangeAvailability,
+    setCurrentTablesToChangeAvailability,
+  ] = useState([]);
+
+  const [currentBlockedTables, setCurrentBlockedTables] = useState([]);
+
+  useEffect(() => {
+    console.log(currentBlockedTables, 'trenutni blokirani stolovi');
+  }, [currentBlockedTables]);
+
   useEffect(() => {
     // set minutes for currentArrivalTime and currentLeavingTime to be 0, 15, 30 or 45
     const day = currentDate.getDate();
@@ -55,6 +68,12 @@ const TableMap = () => {
   }, []);
 
   useEffect(() => {
+    setCurrentTablesToChangeAvailability(tablesStates);
+    console.log(tablesStates, 'ovo su table states');
+    console.log(listOfAllTables, 'GLAVNA lista svih stolova iz baze');
+  }, [currentDate]);
+
+  useEffect(() => {
     if (currentDate) {
       const dateFormatDbReady = currentDate.toString().slice(0, 15);
       setDate(dateFormatDbReady);
@@ -64,6 +83,10 @@ const TableMap = () => {
       setCurrentMinLeavingTime(minLeavingHour);
     }
   }, [currentDate, currentArrivingTime, currentLeavingTime]);
+
+  useEffect(() => {
+    axiosFetch();
+  }, [currentTablesToChangeAvailability]);
 
   useEffect(() => {
     if (currentArrivingTime.getHours() <= currentLeavingTime.getHours()) {
@@ -101,10 +124,8 @@ const TableMap = () => {
               console.log(timeAlreadyUsed, 'korisceno vreme');
 
               if (timeAlreadyUsed === true) {
-                return table;
-              }
-
-              if (timeAlreadyUsed === false) {
+                return table.id;
+              } else {
                 const areTimesOverlapping = table.reservedTimes.some((time) => {
                   const day = currentDate.getDate();
                   const month = currentDate.getMonth();
@@ -132,17 +153,17 @@ const TableMap = () => {
                     0
                   );
 
-                  console.log(time, 'Proba da vidimo sta je datum');
+                  // console.log(time, 'Proba da vidimo sta je datum');
 
-                  console.log(
-                    { start: new Date(time?.start), end: new Date(time?.end) },
-                    'iz BAZE',
-                    {
-                      start: new Date(arrive),
-                      end: new Date(leave),
-                    },
-                    'od korisnika'
-                  );
+                  // console.log(
+                  //   { start: new Date(time?.start), end: new Date(time?.end) },
+                  //   'iz BAZE',
+                  //   {
+                  //     start: new Date(arrive),
+                  //     end: new Date(leave),
+                  //   },
+                  //   'od korisnika'
+                  // );
 
                   const checkIfTimesOverlapping = areIntervalsOverlapping(
                     { start: new Date(time?.start), end: new Date(time?.end) },
@@ -169,6 +190,11 @@ const TableMap = () => {
         tablesWithTimesOverlapping.map((tableGroups) => {
           return tableGroups.filter((item) => item !== null);
         });
+
+      console.log(
+        tablesWithTimesOverlappingWithoutFalsyValues,
+        'Evo stolovi koje je izdvojio koji bi trebalo da se prikazu'
+      );
 
       let reservedTablesIds = [];
 
@@ -197,14 +223,67 @@ const TableMap = () => {
       }
 
       if (reservedTablesIds.length === 0) {
+        console.log('ULAZI U ELSE', reservedTablesIds);
+
         currentTablesToChangeAvailability.forEach((table) => {
           return (table.occupied = false);
         });
 
         setCurrentTableStates(currentTablesToChangeAvailability);
       }
+
+      // get blocked tables
+
+      let blockedTablesIds = [];
+
+      listOfAllTables.map((tableGroups) => {
+        return tableGroups.tables.forEach((table) => {
+          return table.available === false
+            ? blockedTablesIds.push(table)
+            : null;
+        });
+      });
+
+      console.log(blockedTablesIds, 'ajdijevi blokiranih');
+
+      let currentTablesToChangeBlockingStatus = _.cloneDeep(tablesStates);
+
+      if (blockedTablesIds.length > 0) {
+        const tablesToChangeBlockingStatus = blockedTablesIds.map((table) => {
+          return _.filter(currentTablesToChangeBlockingStatus, {
+            id: table.id,
+          });
+        });
+
+        console.log(
+          tablesToChangeBlockingStatus,
+          'tablesToChangeBlockingStatus'
+        );
+
+        tablesToChangeBlockingStatus.forEach((tableGroup) => {
+          return tableGroup.forEach((table) => {
+            return (table.available = false);
+          });
+        });
+
+        setCurrentBlockedTables(currentTablesToChangeBlockingStatus);
+      }
+
+      if (blockedTablesIds.length === 0) {
+        console.log('ULAZI U ELSE Blokiranih', blockedTablesIds);
+
+        currentTablesToChangeBlockingStatus.forEach((table) => {
+          return (table.available = true);
+        });
+
+        setCurrentBlockedTables(currentTablesToChangeBlockingStatus);
+      }
     }
   }, [listOfAllTables, currentDate, currentArrivingTime, currentLeavingTime]);
+
+  const searchReservations = () => {
+    showSearchReservationsModal();
+  };
 
   // add or subtract one day from a current date by clicking on chevrons
   const changeDayHandlerPlus = (e) => {
@@ -244,9 +323,6 @@ const TableMap = () => {
   };
 
   const changeHourHandlerMinusLeavingTime = (e) => {
-    // if (currentLeavingTime.getHours() <= currentArrivingTime.getHours() + 1) {
-    //   setCurrentLeavingTime(currentLeavingTime);
-    // }
     if (currentLeavingTime.getHours <= 13) {
       setCurrentLeavingTime(currentLeavingTime);
     } else {
@@ -295,6 +371,7 @@ const TableMap = () => {
   return (
     <>
       <TableOptionsModal table={currentTable} size={currentTableSize} />
+      <SearchReservationsModal />
 
       <section className="date-time-tablemap-wrapper relative flex flex-col items-center">
         <section className="date-and-time text-center md:mt-8 lg:mt-14">
@@ -456,6 +533,15 @@ const TableMap = () => {
               />
             </Button>
           </div>
+          <div className="search flex place-content-center mb-4">
+            <Button
+              variant="contained"
+              size="medium"
+              onClick={(e) => searchReservations(e)}
+            >
+              SØK RESERVASJON
+            </Button>
+          </div>
         </section>
 
         <section className="restaurant-map w-max lg:h-0 justify-center justify-items-center justify-self-center mt-8 mb-8 mx-auto md:mt-24 lg:-mt-32">
@@ -467,6 +553,10 @@ const TableMap = () => {
                 <div
                   className={` ${
                     currentTablesStates[7]?.occupied === true ? 'bg-rose ' : ''
+                  }, ${
+                    currentBlockedTables[7]?.available === false
+                      ? 'bg-sivaBlockedTable '
+                      : ''
                   }
                 rectangle-tables w-16 h-10 flex justify-center items-center border-2 rounded border-red-300 shadow-lg md:mt-4 md:ml-8 m-2`}
                   alt="table8"
@@ -480,7 +570,11 @@ const TableMap = () => {
                 <div
                   className={` ${
                     currentTablesStates[13]?.occupied === true ? 'bg-rose ' : ''
-                  }rectangle-tables w-16 h-10 flex justify-center items-center border-2 rounded border-red-300 shadow-lg md:mt-4 md:mr-8 m-2`}
+                  }, ${
+                    currentBlockedTables[13]?.available === false
+                      ? 'bg-sivaBlockedTable '
+                      : ''
+                  } rectangle-tables w-16 h-10 flex justify-center items-center border-2 rounded border-red-300 shadow-lg md:mt-4 md:mr-8 m-2`}
                   alt="table15"
                   data-size="4"
                   onClick={(e) => changeTableState(e)}
@@ -499,7 +593,11 @@ const TableMap = () => {
                 <div
                   className={` ${
                     currentTablesStates[6]?.occupied === true ? 'bg-rose ' : ''
-                  }rectangle-tables w-16 h-10 flex justify-center items-center border-2 rounded border-red-300 shadow-lg  md:ml-8 m-2`}
+                  }, ${
+                    currentBlockedTables[6]?.available === false
+                      ? 'bg-sivaBlockedTable '
+                      : ''
+                  } rectangle-tables w-16 h-10 flex justify-center items-center border-2 rounded border-red-300 shadow-lg  md:ml-8 m-2`}
                   alt="table7"
                   data-size="4"
                   onClick={(e) => changeTableState(e)}
@@ -511,6 +609,10 @@ const TableMap = () => {
                 <div
                   className={` ${
                     currentTablesStates[12]?.occupied === true ? 'bg-rose ' : ''
+                  }, ${
+                    currentBlockedTables[12]?.available === false
+                      ? 'bg-sivaBlockedTable '
+                      : ''
                   } rectangle-tables w-16 h-10 flex justify-center items-center border-2 rounded border-red-300 shadow-lg md:mr-8 m-2`}
                   alt="table14"
                   data-size="4"
@@ -533,6 +635,10 @@ const TableMap = () => {
                 <div
                   className={` ${
                     currentTablesStates[5]?.occupied === true ? 'bg-rose ' : ''
+                  }, ${
+                    currentBlockedTables[5]?.available === false
+                      ? 'bg-sivaBlockedTable '
+                      : ''
                   } rectangle-tables w-16 h-10 flex justify-center items-center border-2 rounded border-red-300 shadow-lg  md:ml-8 m-2`}
                   alt="table6"
                   data-size="2"
@@ -545,6 +651,10 @@ const TableMap = () => {
                 <div
                   className={` ${
                     currentTablesStates[11]?.occupied === true ? 'bg-rose ' : ''
+                  }, ${
+                    currentBlockedTables[11]?.available === false
+                      ? 'bg-sivaBlockedTable '
+                      : ''
                   } rectangle-tables w-16 h-10 flex justify-center items-center border-2 rounded border-red-300 shadow-lg md:mr-8 m-2`}
                   alt="table13"
                   data-size="4"
@@ -564,6 +674,10 @@ const TableMap = () => {
                 <div
                   className={` ${
                     currentTablesStates[4]?.occupied === true ? 'bg-rose ' : ''
+                  }, ${
+                    currentBlockedTables[4]?.available === false
+                      ? 'bg-sivaBlockedTable '
+                      : ''
                   } rectangle-tables w-16 h-10 flex justify-center items-center border-2 rounded border-red-300 shadow-lg md:ml-8 m-2`}
                   alt="table5"
                   data-size="4"
@@ -576,6 +690,10 @@ const TableMap = () => {
                 <div
                   className={` ${
                     currentTablesStates[10]?.occupied === true ? 'bg-rose ' : ''
+                  }, ${
+                    currentBlockedTables[10]?.available === false
+                      ? 'bg-sivaBlockedTable '
+                      : ''
                   } rectangle-tables w-16 h-10 flex justify-center items-center border-2 rounded border-red-300 shadow-lg md:mr-8 m-2`}
                   alt="table12"
                   data-size="12"
@@ -597,6 +715,10 @@ const TableMap = () => {
                 <div
                   className={` ${
                     currentTablesStates[3]?.occupied === true ? 'bg-rose ' : ''
+                  }, ${
+                    currentBlockedTables[3]?.available === false
+                      ? 'bg-sivaBlockedTable '
+                      : ''
                   } rectangle-tables w-16 h-10 flex justify-center items-center border-2 rounded border-red-300 shadow-lg md:ml-8 m-2`}
                   alt="table4"
                   data-size="4"
@@ -626,6 +748,10 @@ const TableMap = () => {
                 <div
                   className={` ${
                     currentTablesStates[2]?.occupied === true ? 'bg-rose ' : ''
+                  }, ${
+                    currentBlockedTables[2]?.available === false
+                      ? 'bg-sivaBlockedTable '
+                      : ''
                   } rectangle-tables w-10 h-10 flex justify-center items-center border-2 rounded border-red-300 shadow-lg md:ml-8 m-2`}
                   alt="table3"
                   data-size="2"
@@ -638,6 +764,10 @@ const TableMap = () => {
                 <div
                   className={` ${
                     currentTablesStates[9]?.occupied === true ? 'bg-rose ' : ''
+                  }, ${
+                    currentBlockedTables[9]?.available === false
+                      ? 'bg-sivaBlockedTable '
+                      : ''
                   } rectangle-tables w-16 h-10 flex justify-center items-center border-2 rounded border-red-300 shadow-lg  md:mr-8 m-2`}
                   alt="table11"
                   data-size="4"
@@ -650,6 +780,10 @@ const TableMap = () => {
                 <div
                   className={` ${
                     currentTablesStates[14]?.occupied === true ? 'bg-rose ' : ''
+                  }, ${
+                    currentBlockedTables[14]?.available === false
+                      ? 'bg-sivaBlockedTable '
+                      : ''
                   } rectangle-tables w-16 h-28 flex justify-center items-center border-2 shadow-lg rounded border-red-300 md:ml-8 m-2`}
                   alt="table20"
                   onClick={(e) => changeTableState(e)}
@@ -661,6 +795,10 @@ const TableMap = () => {
                 <div
                   className={` ${
                     currentTablesStates[1]?.occupied === true ? 'bg-rose ' : ''
+                  }, ${
+                    currentBlockedTables[1]?.available === false
+                      ? 'bg-sivaBlockedTable '
+                      : ''
                   } rectangle-tables w-10 h-10 flex justify-center items-center border-2 rounded border-red-300 shadow-lg md:ml-8 m-2`}
                   alt="table2"
                   data-size="2"
@@ -673,6 +811,10 @@ const TableMap = () => {
                 <div
                   className={` ${
                     currentTablesStates[8]?.occupied === true ? 'bg-rose ' : ''
+                  }, ${
+                    currentBlockedTables[8]?.available === false
+                      ? 'bg-sivaBlockedTable '
+                      : ''
                   } rectangle-tables w-16 h-10 flex justify-center items-center border-2 rounded border-red-300 shadow-lg md:mr-8 m-2`}
                   alt="table10"
                   data-size="6"
@@ -686,6 +828,10 @@ const TableMap = () => {
                 <div
                   className={` ${
                     currentTablesStates[0]?.occupied === true ? 'bg-rose ' : ''
+                  }, ${
+                    currentBlockedTables[0]?.available === false
+                      ? 'bg-sivaBlockedTable '
+                      : ''
                   } rectangle-tables w-10 h-10 flex justify-center items-center border-2 rounded border-red-300 shadow-lg md:ml-8 m-2`}
                   alt="table1"
                   data-size="2"
@@ -708,6 +854,10 @@ const TableMap = () => {
                 <div
                   className={` ${
                     currentTablesStates[15]?.occupied === true ? 'bg-rose ' : ''
+                  }, ${
+                    currentBlockedTables[15]?.available === false
+                      ? 'bg-sivaBlockedTable '
+                      : ''
                   } round-tables w-12 h-12 border-2 rounded-full border-red-300 shadow-lg flex justify-center items-center md:ml-8 m-2 mt-2`}
                   alt="table30"
                   data-size="5"
@@ -720,6 +870,10 @@ const TableMap = () => {
                 <div
                   className={` ${
                     currentTablesStates[16]?.occupied === true ? 'bg-rose ' : ''
+                  }, ${
+                    currentBlockedTables[16]?.available === false
+                      ? 'bg-sivaBlockedTable '
+                      : ''
                   } round-tables w-12 h-12 border-2 rounded-full border-red-300 shadow-lg flex justify-center items-center m-2 mt-2 ml-8`}
                   alt="table31"
                   data-size="5"
@@ -735,6 +889,10 @@ const TableMap = () => {
                       currentTablesStates[27]?.occupied === true
                         ? 'bg-rose '
                         : ''
+                    }, ${
+                      currentBlockedTables[27]?.available === false
+                        ? 'bg-sivaBlockedTable '
+                        : ''
                     }  w-10 h-10 rotate-45 border-2 rounded border-red-300 shadow-lg flex justify-center items-center m-2 ml-8 `}
                     alt="table52"
                     data-size="4"
@@ -749,6 +907,10 @@ const TableMap = () => {
                       currentTablesStates[26]?.occupied === true
                         ? 'bg-rose '
                         : ''
+                    }, ${
+                      currentBlockedTables[26]?.available === false
+                        ? 'bg-sivaBlockedTable '
+                        : ''
                     }  w-10 h-10 rotate-45 border-2 rounded border-red-300 shadow-lg flex justify-center items-center m-2 ml-8`}
                     alt="table51"
                     data-size="4"
@@ -762,6 +924,10 @@ const TableMap = () => {
                 <div
                   className={` ${
                     currentTablesStates[17]?.occupied === true ? 'bg-rose ' : ''
+                  }, ${
+                    currentBlockedTables[17]?.available === false
+                      ? 'bg-sivaBlockedTable '
+                      : ''
                   } rectangle-tables w-10 h-10 border-2 rounded border-red-300 shadow-lg flex justify-center items-center md:mr-8 m-2 mt-2 `}
                   alt="table32"
                   data-size="2"
@@ -774,6 +940,10 @@ const TableMap = () => {
                 <div
                   className={` ${
                     currentTablesStates[20]?.occupied === true ? 'bg-rose ' : ''
+                  }, ${
+                    currentBlockedTables[20]?.available === false
+                      ? 'bg-sivaBlockedTable '
+                      : ''
                   } rectangle-tables w-16 h-10 border-2 rounded border-red-300 shadow-lg flex justify-center items-center md:ml-8 m-2 mt-2`}
                   alt="table40"
                   data-size="4"
@@ -786,6 +956,10 @@ const TableMap = () => {
                 <div
                   className={` ${
                     currentTablesStates[25]?.occupied === true ? 'bg-rose ' : ''
+                  }, ${
+                    currentBlockedTables[25]?.available === false
+                      ? 'bg-sivaBlockedTable '
+                      : ''
                   } round-tables  w-12 h-12 border-2 rounded-full border-red-300 shadow-lg flex justify-center items-center m-2 mt-2 ml-8`}
                   alt="table50"
                   data-size="6"
@@ -798,6 +972,10 @@ const TableMap = () => {
                 <div
                   className={` ${
                     currentTablesStates[18]?.occupied === true ? 'bg-rose ' : ''
+                  }, ${
+                    currentBlockedTables[18]?.available === false
+                      ? 'bg-sivaBlockedTable '
+                      : ''
                   } rectangle-tables  w-10 h-10 border-2 rounded border-red-300 shadow-lg flex justify-center items-center md:mr-8 m-2 mt-2`}
                   alt="table33"
                   data-size="2"
@@ -810,6 +988,10 @@ const TableMap = () => {
                 <div
                   className={` ${
                     currentTablesStates[21]?.occupied === true ? 'bg-rose ' : ''
+                  }, ${
+                    currentBlockedTables[21]?.available === false
+                      ? 'bg-sivaBlockedTable '
+                      : ''
                   } rectangle-tables  w-16 h-10 border-2 rounded border-red-300 shadow-lg flex justify-center items-center md:ml-8 m-2 mt-2`}
                   alt="table41"
                   data-size="4"
@@ -822,6 +1004,10 @@ const TableMap = () => {
                 <div
                   className={` ${
                     currentTablesStates[19]?.occupied === true ? 'bg-rose ' : ''
+                  }, ${
+                    currentBlockedTables[19]?.available === false
+                      ? 'bg-sivaBlockedTable '
+                      : ''
                   } rectangle-tables  w-10 h-10 border-2 rounded border-red-300 shadow-lg  flex justify-center items-center md:mr-8 m-2 mt-2`}
                   alt="table34"
                   data-size="2"
@@ -834,6 +1020,10 @@ const TableMap = () => {
                 <div
                   className={` ${
                     currentTablesStates[22]?.occupied === true ? 'bg-rose ' : ''
+                  }, ${
+                    currentBlockedTables[22]?.available === false
+                      ? 'bg-sivaBlockedTable '
+                      : ''
                   } rectangle-tables  w-16 h-10 border-2 rounded border-red-300 shadow-lg  flex justify-center items-center md:ml-8 m-2 mt-2`}
                   alt="table42"
                   data-size="4"
@@ -846,6 +1036,10 @@ const TableMap = () => {
                 <div
                   className={` ${
                     currentTablesStates[23]?.occupied === true ? 'bg-rose ' : ''
+                  }, ${
+                    currentBlockedTables[23]?.available === false
+                      ? 'bg-sivaBlockedTable '
+                      : ''
                   } rectangle-tables w-16 h-10 border-2 rounded border-red-300 shadow-lg  flex justify-center items-center m-2 mt-2 ml-8`}
                   alt="table43"
                   data-size="4"
@@ -858,6 +1052,10 @@ const TableMap = () => {
                 <div
                   className={` ${
                     currentTablesStates[24]?.occupied === true ? 'bg-rose ' : ''
+                  }, ${
+                    currentBlockedTables[24]?.available === false
+                      ? 'bg-sivaBlockedTable '
+                      : ''
                   } rectangle-tables w-16 h-10 border-2 rounded border-red-300 shadow-lg  flex justify-center items-center md:mr-8 m-2 mt-2 mb-4`}
                   alt="table44"
                   data-size="8"
