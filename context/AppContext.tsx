@@ -15,13 +15,31 @@ import {
   CHANGE_TABLE_OPTIONS_MODAL_PART,
   MANUALLY_BOOK_A_TABLE,
   SEARCH_RESERVATIONS_MODAL,
+  SEARCH_SINGLE_TABLE_RESERVATIONS_MODAL,
 } from '../actions';
+
+type InitialStateType = {
+  tableAvailabilityMsg: {};
+  showTableAvailabilityMsg: {};
+  tableOptions: boolean;
+  showSearchReservations: boolean;
+  showSingleTableReservations: boolean;
+  tableOptionsModalPart: number;
+  listOfAllTables: [{}];
+  currentDate: any;
+  currentFormPartVisible: number;
+  isAnimated: boolean;
+  tableManuallyBooked: {};
+  tableSizeWhenManualBooking: number;
+  tablesStates: [{}];
+};
 
 const initialState = {
   tableAvailabilityMsg: { show: false, msg: '' },
   showTableAvailabilityMsg: { show: false, msg: '' },
   tableOptions: false,
   showSearchReservations: false,
+  showSingleTableReservations: false,
   tableOptionsModalPart: 0,
   listOfAllTables: tables,
   currentDate: '',
@@ -63,9 +81,9 @@ const initialState = {
 
 const AppContext = React.createContext();
 
-export const AppProvider = ({ children }) => {
+export const AppProvider = ({ children }: any) => {
   const [state, dispatch] = useReducer(reducer, initialState);
-  const [dataFromDb, setDataFromDb] = useState([]);
+  const [dataFromDb, setDataFromDb] = useState<any>([]);
 
   // Async function to help fetch items from the DB and pass params used to query DB
 
@@ -75,6 +93,10 @@ export const AppProvider = ({ children }) => {
     });
     setDataFromDb(getData);
   };
+
+  useEffect(() => {
+    console.log(state.tableOptionsModalPart, 'modal part');
+  }, [state.tableOptionsModalPart]);
 
   useEffect(() => {
     axiosFetch();
@@ -111,8 +133,8 @@ export const AppProvider = ({ children }) => {
 
   useEffect(() => {
     if (state.tableManuallyBooked.id && state.tableSizeWhenManualBooking > 0) {
-      const currentList = state.listOfAllTables.filter((item) => {
-        return item.tables.filter((table) => {
+      const currentList = state.listOfAllTables.filter((item: any) => {
+        return item.tables.filter((table: any) => {
           // Case when disabled table is clicked
 
           // if(table.id === state.tableManuallyBooked?.id && state.tableManuallyBooked?.availability === false  ) {#
@@ -180,32 +202,10 @@ export const AppProvider = ({ children }) => {
           }
         });
       });
-
       updateListOfAllTables(currentList);
       sendData();
     }
   }, [state.tableManuallyBooked]);
-
-  const submitReservationToDB = async (e: { preventDefault: () => void }) => {
-    e.preventDefault();
-
-    const date = new Date();
-    const day = `${date.getDate()}`.padStart(2, '0');
-    const month = `${date.getMonth() + 1}`.padStart(2, '0');
-    const year = `${date.getFullYear()}`;
-
-    const hour = `${date.getHours()}`.padStart(2, '0');
-    const minutes = `${date.getMinutes()}`.padStart(2, '0');
-    const postedTime = `${day}/${month}/${year}, ${hour}:${minutes}h`;
-
-    const timeStamp = _.now();
-    setTimeout(() => {
-      dispatch({
-        type: SUBMIT_RESERVATION_TO_DB,
-        payload: { postedTime, timeStamp },
-      });
-    }, 2000);
-  };
 
   const setDate = (currentDate) => {
     dispatch({
@@ -227,14 +227,14 @@ export const AppProvider = ({ children }) => {
     });
   };
 
-  const updateListOfAllTables = (updatedListOfAllTables) => {
+  const updateListOfAllTables = (updatedListOfAllTables: [{}]) => {
     dispatch({
       type: UPDATE_LIST_OF_ALL_TABLES,
       payload: updatedListOfAllTables,
     });
   };
 
-  const showTableAvailabilityMsg = (show, msg) => {
+  const showTableAvailabilityMsg = (show: boolean, msg: string) => {
     dispatch({
       type: TABLE_AVAILABILITY_MSG,
       payload: { show, msg },
@@ -253,14 +253,21 @@ export const AppProvider = ({ children }) => {
     });
   };
 
-  const changeTableOptionsModalPart = (currentPart) => {
+  const showSingleTableReservationsModal = (e) => {
+    dispatch({
+      type: SEARCH_SINGLE_TABLE_RESERVATIONS_MODAL,
+      payload: e,
+    });
+  };
+
+  const changeTableOptionsModalPart = (currentPart: number) => {
     dispatch({
       type: CHANGE_TABLE_OPTIONS_MODAL_PART,
       payload: currentPart,
     });
   };
 
-  const manuallyBookATable = (updatedTable, tableSize) => {
+  const manuallyBookATable = (updatedTable: {}, tableSize: number) => {
     dispatch({
       type: MANUALLY_BOOK_A_TABLE,
       payload: { updatedTable, tableSize },
@@ -281,6 +288,7 @@ export const AppProvider = ({ children }) => {
         showTableAvailabilityMsg,
         showTableOptionsModal,
         showSearchReservationsModal,
+        showSingleTableReservationsModal,
         changeTableOptionsModalPart,
         manuallyBookATable,
       }}

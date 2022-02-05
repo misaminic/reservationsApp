@@ -18,7 +18,10 @@ import FormFinish from '../components/FormFinish';
 import freshCopyTableList from '../freshCopyTableList';
 import { animated } from 'react-spring';
 import { usePageAnimation } from '../styles/animations/pagesTransitions';
+import Button from '@mui/material/Button';
 import { useIsMount } from '../utils/utils';
+import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
+import ChevronRightIcon from '@mui/icons-material/ChevronRight';
 
 const Home: NextPage = () => {
   // using app context
@@ -87,10 +90,6 @@ const Home: NextPage = () => {
 
   useEffect(() => {
     if (arrivingTime && leavingTime) {
-      // const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      // const arrival = zonedTimeToUtc(arrivingTime, timeZone);
-      // const leaving = zonedTimeToUtc(leavingTime, timeZone);
-      // console.log(arrivingTime.toISOString());
       setTimeStartEndUserInput({
         start: arrivingTime,
         end: leavingTime,
@@ -139,7 +138,7 @@ const Home: NextPage = () => {
               ...table.customers,
               {
                 tableNumber: table.id,
-                name: isName,
+                name: isName.toLowerCase(),
                 email: isEmail,
                 time: currentTableReserved?.reservedTimes[
                   currentTimeToAddIndex
@@ -193,7 +192,7 @@ const Home: NextPage = () => {
 
   useEffect(() => {
     axiosFetch();
-  }, [currentDate, arrivingTime, leavingTime, numberOfPeople]);
+  }, [currentDate]);
 
   const changeNumberOfPeople = (e) => {
     const operator = e.target.textContent;
@@ -262,7 +261,11 @@ const Home: NextPage = () => {
 
             console.log(timeAlreadyUsed, 'vreme korisceno');
 
-            return timeAlreadyUsed === false ? table : null;
+            if (timeAlreadyUsed === false) {
+              return table;
+            } else {
+              return;
+            }
           }
         });
 
@@ -286,17 +289,18 @@ const Home: NextPage = () => {
 
       const availableTablesOnlyTheOneThatDontHaveCurrentTimeFrameAndTimeFramesNotOverlapping =
         availableTablesFilteredFromFalsyValues.map((table) => {
-          if (table.reservedTimes?.length === 0) {
+          console.log(table, 'vremena stolova');
+          if (table?.reservedTimes?.length === 0) {
             return table;
           } else {
             return table?.reservedTimes?.map((time) => {
-              console.log(
-                { start: new Date(time.start), end: new Date(time.end) },
-                time,
-                'vreme u bazi',
-                timeStartEndUserInput,
-                'user vreme'
-              );
+              console.log(time, 'vrenme sad');
+              // console.log(
+              //   { start: new Date(time?.start), end: new Date(time?.end) },
+              //   'vreme u bazi',
+              //   timeStartEndUserInput,
+              //   'user vreme'
+              // );
               const checkIfTimesOverlapping = areIntervalsOverlapping(
                 { start: new Date(time?.start), end: new Date(time?.end) },
                 timeStartEndUserInput,
@@ -309,7 +313,11 @@ const Home: NextPage = () => {
                   ? table.id
                   : `${table.id} vremena se seku`
               );
-              return checkIfTimesOverlapping === false ? table : null;
+              if (checkIfTimesOverlapping === false) {
+                return table;
+              } else {
+                return;
+              }
             });
           }
         });
@@ -374,88 +382,75 @@ const Home: NextPage = () => {
     }
   };
 
-  const bookTableByTableNumber = () => {
-    let tableThatIsBookedByTableNumber = listOfAllTables
-      .map((tableGroup) => {
-        return tableGroup.tables.find((table) => {
-          return table.id.toString() === tableBookedByTableNumber;
-        });
-      })
-      .filter((item) => item !== undefined);
-    tableThatIsBookedByTableNumber[0]?.available = false;
-    // console.log(allTables, 'all iz book by number');
-    // console.log(reservedTables, ' reserved iz book by number');
-  };
+  // const bookTableByTableNumber = () => {
+  //   let tableThatIsBookedByTableNumber = listOfAllTables
+  //     .map((tableGroup) => {
+  //       return tableGroup.tables.find((table) => {
+  //         return table.id.toString() === tableBookedByTableNumber;
+  //       });
+  //     })
+  //     .filter((item) => item !== undefined);
+  //   tableThatIsBookedByTableNumber[0]?.available = false;
+  //   // console.log(allTables, 'all iz book by number');
+  //   // console.log(reservedTables, ' reserved iz book by number');
+  // };
 
-  const bookTableByTableNumberDateAndTime = () => {
-    let tableThatIsBookedByTableNumber = listOfAllTables
-      .map((tableGroup) => {
-        return tableGroup.tables.find((table) => {
-          return table.id.toString() === tableBookedByTableNumber;
-        });
-      })
-      .filter((item) => item !== undefined);
+  // const bookTableByTableNumberDateAndTime = () => {
+  //   let tableThatIsBookedByTableNumber = listOfAllTables
+  //     .map((tableGroup) => {
+  //       return tableGroup.tables.find((table) => {
+  //         return table.id.toString() === tableBookedByTableNumber;
+  //       });
+  //     })
+  //     .filter((item) => item !== undefined);
 
-    // console.log(tableThatIsBookedByTableNumber, 'ovo je sto KOJI TREBA');
+  //   // console.log(tableThatIsBookedByTableNumber, 'ovo je sto KOJI TREBA');
 
-    const timeAlreadyUsed =
-      tableThatIsBookedByTableNumber[0].reservedTimes.some((time) => {
-        // console.log(tableThatIsBookedByTableNumber[0], 'TA|LE u SOME');
-        // console.log(time, 'bookinh tim');
-        // console.log(timeStartEndUserInput, 'User bookinh tim');
-        const timeSlotNotResereved = _.isEqual(time, timeStartEndUserInput);
+  //   const timeAlreadyUsed =
+  //     tableThatIsBookedByTableNumber[0].reservedTimes.some((time) => {
+  //       // console.log(tableThatIsBookedByTableNumber[0], 'TA|LE u SOME');
+  //       // console.log(time, 'bookinh tim');
+  //       // console.log(timeStartEndUserInput, 'User bookinh tim');
+  //       const timeSlotNotResereved = _.isEqual(time, timeStartEndUserInput);
 
-        return timeSlotNotResereved;
-      });
-    // console.log(timeAlreadyUsed, 'timeAlreadYYYYYY');
-    if (timeAlreadyUsed === false) {
-      const timesOverlapping =
-        tableThatIsBookedByTableNumber[0].reservedTimes.map((time) => {
-          // console.log(table, 'sto u vremenu da li se seku');
-          const checkIfTimesOverlapping = areIntervalsOverlapping(
-            time,
-            timeStartEndUserInput,
-            {
-              inclusive: true,
-            }
-          );
+  //       return timeSlotNotResereved;
+  //     });
+  //   // console.log(timeAlreadyUsed, 'timeAlreadYYYYYY');
+  //   if (timeAlreadyUsed === false) {
+  //     const timesOverlapping =
+  //       tableThatIsBookedByTableNumber[0].reservedTimes.map((time) => {
+  //         // console.log(table, 'sto u vremenu da li se seku');
+  //         const checkIfTimesOverlapping = areIntervalsOverlapping(
+  //           time,
+  //           timeStartEndUserInput,
+  //           {
+  //             inclusive: true,
+  //           }
+  //         );
 
-          return checkIfTimesOverlapping;
-        });
+  //         return checkIfTimesOverlapping;
+  //       });
 
-      console.log(timesOverlapping, 'timesOverlapping');
+  //     console.log(timesOverlapping, 'timesOverlapping');
 
-      if (timesOverlapping[0] === false) {
-        console.log('usao u time overlAPPPPP');
-        setCurrentTableReserved(tableThatIsBookedByTableNumber);
-      } else {
-        showTableAvailabilityMsg(
-          true,
-          `Bordet nummer: ${tableThatIsBookedByTableNumber[0].id} er ikke ledig klokka ${arrivingTimeAsString}h. Prøv gjerne et annet tidspunkt`
-        );
-        return;
-      }
-    } else {
-      showTableAvailabilityMsg(
-        true,
-        `Bordet nummer:${tableThatIsBookedByTableNumber[0].id} er ikke ledig klokka ${arrivingTimeAsString}h. Prøv gjerne et annet tidspunkt`
-      );
-      return;
-    }
-  };
-
-  const makeTableAvailableFn = () => {
-    // getting all tables and finding by Id the one we want to make available
-    let tableThatIsAvailableAgain = listOfAllTables
-      .map((tableGroup) => {
-        return tableGroup.tables.find((table) => {
-          return table.id.toString() === makeTableAvailableNumber;
-        });
-      })
-      .filter((item) => item !== undefined);
-
-    tableThatIsAvailableAgain[0]?.available = true;
-  };
+  //     if (timesOverlapping[0] === false) {
+  //       console.log('usao u time overlAPPPPP');
+  //       setCurrentTableReserved(tableThatIsBookedByTableNumber);
+  //     } else {
+  //       showTableAvailabilityMsg(
+  //         true,
+  //         `Bordet nummer: ${tableThatIsBookedByTableNumber[0].id} er ikke ledig klokka ${arrivingTimeAsString}h. Prøv gjerne et annet tidspunkt`
+  //       );
+  //       return;
+  //     }
+  //   } else {
+  //     showTableAvailabilityMsg(
+  //       true,
+  //       `Bordet nummer:${tableThatIsBookedByTableNumber[0].id} er ikke ledig klokka ${arrivingTimeAsString}h. Prøv gjerne et annet tidspunkt`
+  //     );
+  //     return;
+  //   }
+  // };
 
   const submitNameEmailAndBookTheTable = (e) => {
     e.preventDefault();
@@ -503,7 +498,7 @@ const Home: NextPage = () => {
             ...currentTableReserved[0].customers,
             {
               tableNumber: currentTableReserved[0].id,
-              name: isName,
+              name: isName.toLowerCase(),
               email: isEmail,
               time: timeStartEndUserInput,
             },
@@ -529,7 +524,7 @@ const Home: NextPage = () => {
           customers: [
             {
               tableNumber: currentTableReserved.id,
-              name: isName,
+              name: isName.toLowerCase(),
               email: isEmail,
               time: timeStartEndUserInput,
             },
@@ -557,29 +552,40 @@ const Home: NextPage = () => {
 
               {currentFormPartVisible === 0 && (
                 <animated.div style={style}>
-                  <div className="booking-form">
+                  <div className="booking-form date-and-time text-center md:mt-8 lg:mt-14">
                     <form>
                       <div className="form-control text-center">
                         <label htmlFor="antall-personer">Antall personer</label>
                         <div className="number-of-people">
-                          <span
-                            className="text-2xl"
-                            onClick={(e) => changeNumberOfPeople(e)}
+                          <Button
+                            variant="outlined"
+                            sx={{ minWidth: 20, mt: 2, mb: 3 }}
                           >
-                            -
-                          </span>
+                            <span
+                              className="text-2xl"
+                              onClick={(e) => changeNumberOfPeople(e)}
+                            >
+                              -
+                            </span>
+                          </Button>
+
                           <input
                             type="number"
-                            id="antall-personer"
-                            className="w-12 bg-white rounded text-center m-8"
+                            className="w-12 bg-white border-2 rounded text-center ml-4 mr-4 p-3"
                             value={numberOfPeople}
                           />
-                          <span
-                            className="text-2xl"
-                            onClick={(e) => changeNumberOfPeople(e)}
+
+                          <Button
+                            variant="outlined"
+                            sx={{ minWidth: 20, mt: 2, mb: 3 }}
                           >
-                            +
-                          </span>
+                            <span
+                              className="text-2xl"
+                              onClick={(e) => changeNumberOfPeople(e)}
+                            >
+                              +
+                            </span>
+                          </Button>
                         </div>
 
                         <LocalizationProvider dateAdapter={DateAdapter}>
@@ -632,12 +638,13 @@ const Home: NextPage = () => {
                                 )}
                               />
 
-                              <button
-                                type="button"
+                              <Button
+                                variant="contained"
+                                sx={{ minWidth: 20, mt: 2, mb: 3 }}
                                 onClick={() => checkTableAvailability()}
                               >
                                 Next
-                              </button>
+                              </Button>
                             </Stack>
                           }
                         </LocalizationProvider>
@@ -650,69 +657,6 @@ const Home: NextPage = () => {
           ) : null
         )}
 
-        {/* <div>
-              <input
-                type="number"
-                id="make-table-available__number"
-                className="w-12 bg-white rounded text-center m-8"
-                value={makeTableAvailableNumber}
-                onChange={(e) => setMakeTableAvailableNumber(e.target.value)}
-              />
-              <input
-                type="number"
-                id="make-table-available__hour"
-                className="w-12 bg-white rounded text-center m-8"
-                value={makeTableAvailableHour}
-                onChange={(e) => setMakeTableAvailableHour(e.target.value)}
-              />
-              <button type="button" onClick={() => makeTableAvailableFn()}>
-                Make table available
-              </button>
-            </div>
-
-            <div>
-              <input
-                type="number"
-                id="make-table-available"
-                className="w-12 bg-white rounded text-center m-8"
-                value={tableBookedByTableNumber}
-                onChange={(e) => setTableBookedByTableNumber(e.target.value)}
-              />
-              <button
-                type="button"
-                onClick={() => bookTableByTableNumberDateAndTime()}
-              >
-                Book table by table number
-              </button>
-            </div> */}
-
-        <div className="list-of-all-booked-tables">
-          <ul>
-            {reservedTables.length ? (
-              reservedTables.map((table, index) => {
-                return (
-                  table?.id && (
-                    <div key={table?.id} className="flex">
-                      <li>Table:{table?.id}</li>
-                      {table?.reservedTimes?.map((time, index) => {
-                        return (
-                          <li key={index}>
-                            {_.isEmpty(time)
-                              ? null
-                              : format(new Date(time.start), 'H:mm')}
-                          </li>
-                        );
-                      })}
-                    </div>
-                  )
-                );
-              })
-            ) : (
-              <li>No tables reserved</li>
-            )}
-          </ul>
-        </div>
-
         {/* ----------- EMAIL NAME SECTION --------- */}
 
         {currentFormPartVisible === 1 && (
@@ -722,35 +666,49 @@ const Home: NextPage = () => {
                 <animated.div style={style}>
                   <section className="email-name-section">
                     <article>
-                      <h5>Reservation details</h5>
+                      <h5 className="text-center mb-8">RESERVATION DETAILS</h5>
                       <form className="person__form">
-                        <div className="person__form__fields">
-                          <label className="person__name-label">
-                            <input
-                              type="text"
-                              name="name"
-                              value={isName}
-                              onChange={(e) => setIsName(e.target.value)}
-                              className="person__name-input"
-                            />
-                            <span className="input-label__name">Name</span>
-                          </label>
-                          <label className="person__email-label">
-                            <input
-                              type="email"
-                              name="email"
-                              value={isEmail}
-                              onChange={(e) => setIsEmail(e.target.value)}
-                              className="person__email-input"
-                            />
-                            <span className="input-label__email">Email</span>
-                          </label>
+                        <div className="person__form__fields flex flex-col">
+                          <div className="mb-6 bg-gray-300">
+                            <label className="person__name-label">
+                              <input
+                                type="text"
+                                name="name"
+                                placeholder="Navn"
+                                value={isName}
+                                onChange={(e) => setIsName(e.target.value)}
+                                className="person__name-input w-full p-2"
+                              />
+                            </label>
+                          </div>
+                          <div className="mb-4 bg-gray-300">
+                            <label className="person__email-label">
+                              <input
+                                type="email"
+                                name="email"
+                                placeholder="Email"
+                                value={isEmail}
+                                onChange={(e) => setIsEmail(e.target.value)}
+                                className="person__email-input w-full p-2"
+                              />
+                            </label>
+                          </div>
+                          <Button
+                            variant="contained"
+                            sx={{ minWidth: 20, mt: 2, mb: 2 }}
+                            onClick={(e) => submitNameEmailAndBookTheTable(e)}
+                            type="submit"
+                          >
+                            BESTILL
+                          </Button>
+                          <Button
+                            variant="outlined"
+                            sx={{ minWidth: 20, mt: 1 }}
+                            onClick={(e) => changeCurrentFormPartVisible(0)}
+                          >
+                            TILBAKE
+                          </Button>
                         </div>
-                        <input
-                          type="submit"
-                          value="Submit"
-                          onClick={(e) => submitNameEmailAndBookTheTable(e)}
-                        />
                       </form>
                     </article>
                   </section>

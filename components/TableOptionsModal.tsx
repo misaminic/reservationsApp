@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import Box from '@mui/material/Box';
 import Button from '@mui/material/Button';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
@@ -8,6 +8,7 @@ import Modal from '@mui/material/Modal';
 import { useAppContext } from '../context/AppContext';
 import BookTableManually from './BookTableManually';
 import MsgModal from '../components/MsgModal';
+import SingleTableFindReservationsModal from '../components/SingleTableFindReservationsModal';
 
 // type msgTypes = { show?: boolean; msg?: string };
 
@@ -21,7 +22,6 @@ const TableOptionsModal = ({ table, size }) => {
     listOfAllTables,
     updateListOfAllTables,
     sendData,
-    axiosFetch,
   } = useAppContext();
 
   const closeOptionsModal = () => {
@@ -33,6 +33,10 @@ const TableOptionsModal = ({ table, size }) => {
     const previous = tableOptionsModalPart - 1;
     changeTableOptionsModalPart(previous);
   };
+
+  useEffect(() => {
+    console.log(tableOptionsModalPart, 'modal DEO');
+  }, [tableOptionsModalPart]);
 
   const style = {
     position: 'absolute',
@@ -47,6 +51,10 @@ const TableOptionsModal = ({ table, size }) => {
   };
 
   const bookTheTable = (currentPart) => {
+    changeTableOptionsModalPart(currentPart);
+  };
+
+  const cancelTableReservation = (currentPart) => {
     changeTableOptionsModalPart(currentPart);
   };
 
@@ -140,10 +148,15 @@ const TableOptionsModal = ({ table, size }) => {
                 sx={{ mb: 3 }}
                 onClick={() => bookTheTable(1)}
               >
-                BESTILL BORDET
+                BESTILL TIME
               </Button>
-              <Button variant="contained" size="large" sx={{ mb: 3 }}>
-                AVBESTILLE BORDET
+              <Button
+                variant="contained"
+                size="large"
+                sx={{ mb: 3 }}
+                onClick={() => cancelTableReservation(3)}
+              >
+                ALLE BESTILLINGER PÅ BORDET
               </Button>
               <Button
                 variant="contained"
@@ -155,15 +168,22 @@ const TableOptionsModal = ({ table, size }) => {
                   table.available === true ? 'LÅSE BORDET' : 'LÅSE OPP BORDET'
                 }`}
               </Button>
-              <Button variant="contained" size="large" sx={{ mb: 3 }}>
-                SE ALLE BESTILLINGER PÅ BORDET
-              </Button>
             </div>
           )}
           <>
             {tableOptionsModalPart === 1 && (
               <>
                 <BookTableManually table={table} size={size} />
+              </>
+            )}
+          </>
+          <>
+            {tableOptionsModalPart === 3 && (
+              <>
+                <SingleTableFindReservationsModal
+                  table={table}
+                  previousPart={previousModalPart}
+                />
               </>
             )}
           </>

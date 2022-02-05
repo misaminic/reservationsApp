@@ -71,30 +71,6 @@ input[type='number'] {
   outline: 0;
 }
 
-.person__name-input:focus + .input-label__name {
-  transform: translateY(-28px);
-  font-size: 0.75rem;
-}
-
-.person__email-input:focus + .input-label__email {
-  transform: translateY(-28px);
-  font-size: 0.75rem;
-}
-
-.input-label__name {
-  position: absolute;
-  top: 0;
-  left: 0;
-  transition: all 0.3s ease;
-}
-
-.input-label__email {
-  position: absolute;
-  top: 0;
-  left: 0;
-  transition: all 0.3s ease;
-}
-
 .sitting-area {
   grid-template-areas:
     'date date date'
@@ -107,16 +83,6 @@ input[type='number'] {
     'forty fiftyoneandtwo thirtythree' 'fortyone fifty thirtyfour'
     'fortytwo fortythree fortyfour';
 }
-
-/* .sitting-area {
-  grid-template-areas:
-    'eight fifteen . .' 'seven fourteen . .' 'six thirteen . .'
-    '.  thirteen . .' 'five twelve . .' '. twelve . .' 'four invisible-element . .'
-    'three invisible-element-2 twenty .' 'two eleven twenty .' 'one ten twenty .'
-    'thirty thirtyone invisible-element-3 thirtytwo'
-    'forty fiftyoneandtwo thirtythree .' 'fortyone fifty . thirtyfour'
-    'fortytwo fortythree invisible-element-4 fortyfour';
-} */
 
 .date {
   grid-area: date;
@@ -290,9 +256,33 @@ input[type='number'] {
   padding-bottom: 1.5rem;
 }
 
+.email-name-section {
+  background: rgba(249, 250, 251, 0.9);
+  border-radius: 0.3rem;
+  margin-top: 2rem;
+  margin: 0 auto;
+  padding: 3rem;
+  padding-bottom: 0.5rem;
+}
+
 .restaurant-map {
   position: relative;
   opacity: 1;
+}
+
+.name-in-reservation-list {
+  text-transform: capitalize;
+}
+
+/* Hide scrollbar for Chrome, Safari and Opera */
+.search-reservation-modal::-webkit-scrollbar {
+  display: none;
+}
+
+/* Hide scrollbar for IE, Edge and Firefox */
+.search-reservation-modal {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
 }
 
 /* Material UI components styles added */
@@ -312,6 +302,18 @@ input[type='number'] {
 }
 
 /* Media Queries */
+
+@media only screen and (max-width: 1024px) {
+  .date-and-time {
+    display: flex;
+    flex-direction: column;
+    place-items: center;
+    margin-top: 2rem;
+    width: 95vw;
+    padding: 0.4rem;
+    padding-bottom: 0.4rem;
+  }
+}
 
 @media only screen and (min-width: 1024px) {
   .restaurant-map {
@@ -337,13 +339,6 @@ input[type='number'] {
 @media only screen and (max-width: 768px) {
   body {
     background-color: rgba(100, 116, 139, 1);
-  }
-
-  .date-and-time {
-    margin-top: 2rem;
-    width: 95vw;
-    padding: 0.4rem;
-    padding-bottom: 0.4rem;
   }
 }
 

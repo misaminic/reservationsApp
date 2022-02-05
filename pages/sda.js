@@ -1,41 +1,28 @@
-const obj1 = {
-  start: new Date(new Date('2020-07-19 18:15:00')),
-  end: new Date(new Date('2020-07-19 18:20:00')),
-};
 
-const obj2 = {
-  start: new Date(new Date('2020-07-19 18:25:00')),
-  end: new Date(new Date('2020-07-19 18:20:00')),
-};
 
-const obj3 = {
-  start: new Date(new Date('2020-07-19 18:45:00')),
-  end: new Date(new Date('2020-07-19 18:55:00')),
-};
+Na samom pocetku ovog pisma zeleo bih da kazem da sam bio iskreno odusevljen kada
+sam procitao opis pozicije - konsultant za studente jer moje dosadasnje kvalifikacije skoro potpuno odgovaraju
+onim koje vi trazite, a pored toga, vrlo sam motivisan da radim u timu koji ima za cilj da pomogne razvoj obrazovanja.
 
-const allTables = [
-  {
-    key: 2,
-    tables: [
-      { id: 20, reservedTimes: [obj1, obj2] },
-      { id: 20, reservedTimes: [obj2, obj3] },
-    ],
-  },
-];
 
-const bla = allTables[0].tables.map((table) => {
-  return table.reservedTimes.map((item) => {
-    return item ? table : null;
-  });
-});
+Video sam da ste u oglasu napisali da ce neko od buducih zaposlenih, biti zaduzen za grupe u vezi sa ceskim, srpskim, hrvatskim
+i bosanskim jezikom, a s ozbirom na to da sam ja zavrsio ceski jezik i knjizevnost, da mi je srpski jezik maternji i da govorim
+tecno bosanski i hrvatski, mislim da bih, ukoliko se ukaze potreba mogao da pomognem studentima i oko drugih stvari pored administracije.
 
-// console.log(bla);
-const sto = { id: 40, name: 'misa', reservedTimes: [obj1, obj2] };
+Moje radno iskustvo je pocelo u osnovnoj skoli gde sam radio kao medijatekar, gde sam pomagao ucenicima u ucenju i razvijanju njihove opste i medijske pismenosti.
+Zatim sam presao u web agenciju gde sam naucio kako se prave sajtovi i aplikacije, tako da sam tehnicki dobro potkovan i verujem
+da bih sa svojim znanjem iz programiranja mogao da pomognem razvijajuci odredjeni digitalni alat koji bi 
+mogao da pomogne u zadacima administrativnog tima i pruzi bolju podrsku studentima.
+Trenutno radim kao konsultant za komunikacije gde je znacajan deo mog posla upravo pruzanje pomoci i informacija
+klijentima i saradnicima. 
 
-const prle = {
-  ...sto,
-  reservedTimes: [...sto.reservedTimes, obj3],
-  name: 'pera',
-};
+Dodao bih jos da su moja bachelor i master diploma u potpunsti priznate od strane Nokuta, kao i da sam
+polozio norveski B2 u norveskom institutu za jezik - kompetanse Norge. Sertifikatu mozete pristupiti na ovoj adresi. 
+Pored toga, posedujem i sertifikat o znanju engleskog jezika - Cambridge English, izdat od strane British Council-a/
 
-console.log(prle);
+
+Ukoliko biste zeleli da saznate vise o mojim tehnickim znanjima i sta sam do sada programirao, mozete da pogledajte moj website.
+
+Nadam se da moj profil i dosadasnje iskustvo odgovaraju ovoj poziciji i radujem se mogucnosti da dalje razgovaramo o ovom poslu.
+
+

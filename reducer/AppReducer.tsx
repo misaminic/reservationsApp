@@ -8,9 +8,10 @@ import {
   CHANGE_TABLE_OPTIONS_MODAL_PART,
   MANUALLY_BOOK_A_TABLE,
   SEARCH_RESERVATIONS_MODAL,
+  SEARCH_SINGLE_TABLE_RESERVATIONS_MODAL,
 } from '../actions';
 
-const app_reducer = (state, action) => {
+const app_reducer = (state: any, action: any) => {
   if (action.type === SET_DATE) {
     return { ...state, currentDate: action.payload };
   }
@@ -32,6 +33,28 @@ const app_reducer = (state, action) => {
   }
   if (action.type === SEARCH_RESERVATIONS_MODAL) {
     return { ...state, showSearchReservations: !state.showSearchReservations };
+  }
+
+  if (action.type === SEARCH_SINGLE_TABLE_RESERVATIONS_MODAL) {
+    if (action.payload?.type === 'click') {
+      return {
+        ...state,
+        showSingleTableReservations: false,
+        tableOptionsModalPart: 0,
+        tableOptions: false,
+      };
+    } else if (state.tableOptionsModalPart === 3) {
+      return {
+        ...state,
+        showSingleTableReservations: true,
+      };
+    } else {
+      return {
+        ...state,
+        showSingleTableReservations: false,
+        tableOptionsModalPart: 0,
+      };
+    }
   }
   if (action.type === CHANGE_TABLE_OPTIONS_MODAL_PART) {
     const currentPart = action.payload;

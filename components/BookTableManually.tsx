@@ -216,7 +216,7 @@ const BookTableManually = ({ table, size }) => {
               ...table.customers,
               {
                 tableNumber: table.id,
-                name: isName,
+                name: isName.toLowerCase(),
                 email: isEmail,
                 time: timeStartEndUserInput,
               },
@@ -239,7 +239,7 @@ const BookTableManually = ({ table, size }) => {
         customers: [
           {
             tableNumber: table.id,
-            name: isName,
+            name: isName.toLowerCase(),
             email: isEmail,
             time: timeStartEndUserInput,
           },

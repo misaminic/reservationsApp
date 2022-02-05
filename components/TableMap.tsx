@@ -31,7 +31,8 @@ const TableMap = () => {
     setDate,
     dataFromDb,
     axiosFetch,
-  } = useAppContext();
+    tableOptions,
+  }: any = useAppContext();
 
   const [currentTable, setCurrentTable] = useState({});
   const [currentTableSize, setCurrentTableSize] = useState(0);
@@ -54,10 +55,6 @@ const TableMap = () => {
   const [currentBlockedTables, setCurrentBlockedTables] = useState([]);
 
   useEffect(() => {
-    console.log(currentBlockedTables, 'trenutni blokirani stolovi');
-  }, [currentBlockedTables]);
-
-  useEffect(() => {
     // set minutes for currentArrivalTime and currentLeavingTime to be 0, 15, 30 or 45
     const day = currentDate.getDate();
     const month = currentDate.getMonth();
@@ -69,7 +66,6 @@ const TableMap = () => {
 
   useEffect(() => {
     setCurrentTablesToChangeAvailability(tablesStates);
-    console.log(tablesStates, 'ovo su table states');
     console.log(listOfAllTables, 'GLAVNA lista svih stolova iz baze');
   }, [currentDate]);
 
@@ -87,6 +83,10 @@ const TableMap = () => {
   useEffect(() => {
     axiosFetch();
   }, [currentTablesToChangeAvailability]);
+
+  useEffect(() => {
+    console.log(tableOptions, 'table option SU');
+  }, [tableOptions]);
 
   useEffect(() => {
     if (currentArrivingTime.getHours() <= currentLeavingTime.getHours()) {
@@ -279,7 +279,14 @@ const TableMap = () => {
         setCurrentBlockedTables(currentTablesToChangeBlockingStatus);
       }
     }
-  }, [listOfAllTables, currentDate, currentArrivingTime, currentLeavingTime]);
+  }, [
+    listOfAllTables,
+    currentDate,
+    currentArrivingTime,
+    currentLeavingTime,
+    tablesStates,
+    showTableOptionsModal,
+  ]);
 
   const searchReservations = () => {
     showSearchReservationsModal();
