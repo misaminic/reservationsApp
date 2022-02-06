@@ -37,7 +37,7 @@ const Home: NextPage = () => {
     changeAnimationStatus,
     updateListOfAllTables,
     axiosFetch,
-  } = useAppContext();
+  }: any = useAppContext();
 
   const isMount = useIsMount();
 
@@ -99,55 +99,67 @@ const Home: NextPage = () => {
 
   useEffect(() => {
     if (numberOfPeople === 1) {
-      const getAllTablesForTheSizeOfGroup = listOfAllTables.filter((item) => {
-        return item.key === 2;
-      });
+      const getAllTablesForTheSizeOfGroup = listOfAllTables.filter(
+        (item: any) => {
+          return item.key === 2;
+        }
+      );
       setSuitableTableSize(getAllTablesForTheSizeOfGroup);
     } else if (numberOfPeople === 3) {
-      const getAllTablesForTheSizeOfGroup = listOfAllTables.filter((item) => {
-        return item.key === 4;
-      });
+      const getAllTablesForTheSizeOfGroup = listOfAllTables.filter(
+        (item: any) => {
+          return item.key === 4;
+        }
+      );
       setSuitableTableSize(getAllTablesForTheSizeOfGroup);
     } else {
-      const getAllTablesForTheSizeOfGroup = listOfAllTables.filter((item) => {
-        return item.key === numberOfPeople;
-      });
+      const getAllTablesForTheSizeOfGroup = listOfAllTables.filter(
+        (item: any) => {
+          return item.key === numberOfPeople;
+        }
+      );
       setSuitableTableSize(getAllTablesForTheSizeOfGroup);
     }
   }, [numberOfPeople, listOfAllTables, dataFromDb]);
 
   useEffect(() => {
     if (currentTableReserved) {
-      const currentReservedTableInAllTables = listOfAllTables.filter((item) => {
-        return item.tables.filter((table) => {
-          if (table.id === currentTableReserved?.id) {
-            const currentTimeToAddIndex =
-              currentTableReserved.reservedTimes.length - 1;
-
-            table?.customers = [
-              ...table.customers,
-              {
-                tableNumber: table.id,
-                name: isName.toLowerCase(),
-                email: isEmail,
-                time: currentTableReserved?.reservedTimes[
-                  currentTimeToAddIndex
-                ],
-              },
-            ];
-
-            table?.reservedTimes = [
-              ...table.reservedTimes,
-              currentTableReserved?.reservedTimes[currentTimeToAddIndex],
-            ];
-            return table;
-          }
-        });
-      });
+      const currentReservedTableInAllTables = listOfAllTables.filter(
+        (item: any) => {
+          return item.tables.filter((table: any) => {
+            //@ts-ignore
+            if (table.id === currentTableReserved?.id) {
+              const currentTimeToAddIndex =
+                //@ts-ignore
+                currentTableReserved.reservedTimes.length - 1;
+              //@ts-ignore
+              table?.customers = [
+                ...table.customers,
+                {
+                  tableNumber: table.id,
+                  name: isName.toLowerCase(),
+                  email: isEmail,
+                  //@ts-ignore
+                  time: currentTableReserved?.reservedTimes[
+                    currentTimeToAddIndex
+                  ],
+                },
+              ];
+              //@ts-ignore
+              table?.reservedTimes = [
+                ...table.reservedTimes,
+                //@ts-ignore
+                currentTableReserved?.reservedTimes[currentTimeToAddIndex],
+              ];
+              return table;
+            }
+          });
+        }
+      );
     }
-
+    //@ts-ignore
     updateListOfAllTables(currentReservedTableInAllTables);
-
+    //@ts-ignore
     if (currentTableReserved?.id) {
       const reservedTablesWithoutFalsyValues = reservedTables.filter(
         (table) => table !== Boolean
@@ -155,10 +167,11 @@ const Home: NextPage = () => {
 
       const reservedTablesDbReady = reservedTablesWithoutFalsyValues.filter(
         (table) => {
+          //@ts-ignore
           return table?.id !== currentTableReserved?.id;
         }
       );
-
+      //@ts-ignore
       setReservedTables([...reservedTablesDbReady, currentTableReserved]);
     }
 
@@ -180,7 +193,7 @@ const Home: NextPage = () => {
     axiosFetch();
   }, [currentDate]);
 
-  const changeNumberOfPeople = (e) => {
+  const changeNumberOfPeople = (e: any) => {
     const operator = e.target.textContent;
     if (numberOfPeople === 1 && operator === '-') {
       setNumberOfPeople(1);
@@ -223,18 +236,19 @@ const Home: NextPage = () => {
       // getting all the tables and then each table's reservedTimes property
       // applying time library's function to check if intervals are overlapping
       // this returns array with boolean values, true if they are overlapping
+      //@ts-ignore
       const allAvailableTablesForGroupSize = suitableTableSize[0].tables.filter(
-        (table) => {
+        (table: any) => {
           return table.available === true && table;
         }
       );
 
       const availableTablesOnlyTheOneThatDontHaveCurrentTimeFrame =
-        allAvailableTablesForGroupSize.map((table) => {
+        allAvailableTablesForGroupSize.map((table: any) => {
           if (table.reservedTimes.length === 0) {
             return table;
           } else {
-            const timeAlreadyUsed = table.reservedTimes.some((time) => {
+            const timeAlreadyUsed = table.reservedTimes.some((time: any) => {
               const isTimeSlotNotReserved = _.isEqual(
                 { start: new Date(time?.start), end: new Date(time?.end) },
                 timeStartEndUserInput
@@ -253,7 +267,7 @@ const Home: NextPage = () => {
 
       const availableTablesFilteredFromFalsyValues =
         availableTablesOnlyTheOneThatDontHaveCurrentTimeFrame.filter(
-          (item) => item !== null || undefined
+          (item: any) => item !== null || undefined
         );
 
       if (availableTablesFilteredFromFalsyValues.length === 0) {
@@ -265,13 +279,14 @@ const Home: NextPage = () => {
       }
 
       const availableTablesOnlyTheOneThatDontHaveCurrentTimeFrameAndTimeFramesNotOverlapping =
-        availableTablesFilteredFromFalsyValues.map((table) => {
+        availableTablesFilteredFromFalsyValues.map((table: any) => {
           if (table?.reservedTimes?.length === 0) {
             return table;
           } else {
-            return table?.reservedTimes?.map((time) => {
+            return table?.reservedTimes?.map((time: any) => {
               const checkIfTimesOverlapping = areIntervalsOverlapping(
                 { start: new Date(time?.start), end: new Date(time?.end) },
+                //@ts-ignore
                 timeStartEndUserInput,
                 {
                   inclusive: true,
@@ -300,7 +315,7 @@ const Home: NextPage = () => {
 
       const availableTablesFiltered =
         availableTablesOnlyTheOneThatDontHaveCurrentTimeFrameAndTimeFramesNotOverlapping.filter(
-          (item) => {
+          (item: any) => {
             if (item !== undefined) {
               return item[0] !== null;
             } else {
@@ -336,7 +351,7 @@ const Home: NextPage = () => {
     }
   };
 
-  const submitNameEmailAndBookTheTable = (e) => {
+  const submitNameEmailAndBookTheTable = (e: any) => {
     e.preventDefault();
     const name = e.target.form[0].value;
     const email = e.target.form[1].value;
@@ -369,17 +384,28 @@ const Home: NextPage = () => {
     });
 
     if (dataIsNotValid === false) {
+      //@ts-ignore
+
       if (currentTableReserved[0]?.reservedTimes?.length > 0) {
+        //@ts-ignore
+
         setCurrentTableReserved({
+          //@ts-ignore
+
           ...currentTableReserved[0],
 
           reservedTimes: [
+            //@ts-ignore
             ...currentTableReserved[0].reservedTimes,
             timeStartEndUserInput,
           ],
+          //@ts-ignore
           customers: [
+            //@ts-ignore
             ...currentTableReserved[0].customers,
+            //@ts-ignore
             {
+              //@ts-ignore
               tableNumber: currentTableReserved[0].id,
               name: isName.toLowerCase(),
               email: isEmail,
@@ -389,18 +415,20 @@ const Home: NextPage = () => {
         });
         setReservationCycleStatus(!reservationCycleStatus);
         changeCurrentFormPartVisible(2);
-        // changeAnimationStatus();
       } else {
         setCurrentTableReserved({
           ...currentTableReserved,
           reservedTimes: [
             {
+              //@ts-ignore
               start: new Date(timeStartEndUserInput.start),
+              //@ts-ignore
               end: new Date(timeStartEndUserInput.end),
             },
           ],
           customers: [
             {
+              //@ts-ignore
               tableNumber: currentTableReserved.id,
               name: isName.toLowerCase(),
               email: isEmail,
@@ -426,8 +454,6 @@ const Home: NextPage = () => {
         {customAnimation((style: any, isAnimated: boolean) =>
           isAnimated ? (
             <>
-              {/* <h1 className={styles.title}>Book a table</h1> */}
-
               {currentFormPartVisible === 0 && (
                 <animated.div style={style}>
                   <div className="booking-form date-and-time text-center md:mt-8 lg:mt-14">
@@ -476,7 +502,7 @@ const Home: NextPage = () => {
                                 inputFormat="dd/MM/yyyy"
                                 disablePast
                                 value={currentDate}
-                                onChange={(date) => {
+                                onChange={(date: any) => {
                                   setCurrentDate(date);
                                 }}
                                 renderInput={(props) => (
@@ -488,11 +514,12 @@ const Home: NextPage = () => {
                                 label="Velg ankomsttid"
                                 minTime={new Date(0, 0, 0, 12)}
                                 maxTime={new Date(0, 0, 0, 21, 0)}
+                                // @ts-ignore
                                 disablePast
                                 ampm={false}
                                 minutesStep={15}
                                 value={arrivingTime}
-                                onChange={(time) => {
+                                onChange={(time: any) => {
                                   setArrivingTime(time);
                                 }}
                                 renderInput={(props) => (
@@ -504,11 +531,12 @@ const Home: NextPage = () => {
                                 label="Velg avreisetid"
                                 minTime={new Date(0, 0, 0, 12)}
                                 maxTime={new Date(0, 0, 0, 22, 0)}
+                                //@ts-ignore
                                 disablePast
                                 ampm={false}
                                 minutesStep={15}
                                 value={leavingTime}
-                                onChange={(time) => {
+                                onChange={(time: any) => {
                                   setLeavingTime(time);
                                 }}
                                 renderInput={(props) => (
