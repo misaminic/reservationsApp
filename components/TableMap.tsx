@@ -420,6 +420,7 @@ const TableMap = () => {
               className="ml-1 lg:ml-8"
               sx={{ backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
             >
+              {/* //@ts-ignore */}
               <ChevronRightIcon onClick={(e: any) => changeDayHandlerPlus(e)} />
             </Button>
           </div>
@@ -432,6 +433,7 @@ const TableMap = () => {
               sx={{ backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
             >
               <ChevronLeftIcon
+                // @ts-ignore
                 onClick={(e: any) => changeHourHandlerMinusArrivingTime(e)}
               />
             </Button>
@@ -474,6 +476,7 @@ const TableMap = () => {
               sx={{ backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
             >
               <ChevronRightIcon
+                //@ts-ignore
                 onClick={(e: any) => changeHourHandlerPlusArrivingTime(e)}
               />
             </Button>
@@ -487,6 +490,7 @@ const TableMap = () => {
               sx={{ backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
             >
               <ChevronLeftIcon
+                //@ts-ignore
                 onClick={(e: any) => changeHourHandlerMinusLeavingTime(e)}
               />
             </Button>
@@ -529,6 +533,7 @@ const TableMap = () => {
               sx={{ backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
             >
               <ChevronRightIcon
+                //@ts-ignore
                 onClick={(e) => changeHourHandlerPlusLeavingTime(e)}
               />
             </Button>
@@ -537,6 +542,7 @@ const TableMap = () => {
             <Button
               variant="contained"
               size="medium"
+              //@ts-ignore
               onClick={(e) => searchReservations(e)}
             >
               SØK RESERVASJON
