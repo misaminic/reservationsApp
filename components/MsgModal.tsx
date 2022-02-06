@@ -33,6 +33,7 @@ const MsgModal = () => {
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
+        {/* @ts-ignore */}
         <Box sx={style}>
           <Typography
             id="modal-modal-title"

@@ -34,9 +34,7 @@ const TableOptionsModal = ({ table, size }: any) => {
     changeTableOptionsModalPart(previous);
   };
 
-  useEffect(() => {
-    console.log(tableOptionsModalPart, 'modal DEO');
-  }, [tableOptionsModalPart]);
+  useEffect(() => {}, [tableOptionsModalPart]);
 
   const style = {
     position: 'absolute',
