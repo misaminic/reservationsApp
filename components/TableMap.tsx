@@ -34,12 +34,14 @@ const TableMap = () => {
     tableOptions,
   }: any = useAppContext();
 
-  const [currentTable, setCurrentTable] = useState({});
-  const [currentTableSize, setCurrentTableSize] = useState(0);
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [currentTablesStates, setCurrentTableStates] = useState({});
-  const [currentArrivingTime, setCurrentArrivingTime] = useState(new Date());
-  const [currentLeavingTime, setCurrentLeavingTime] = useState(
+  const [currentTable, setCurrentTable] = useState<any>({});
+  const [currentTableSize, setCurrentTableSize] = useState<any>(0);
+  const [currentDate, setCurrentDate] = useState<any>(new Date());
+  const [currentTablesStates, setCurrentTableStates] = useState<any>({});
+  const [currentArrivingTime, setCurrentArrivingTime] = useState<any>(
+    new Date()
+  );
+  const [currentLeavingTime, setCurrentLeavingTime] = useState<any>(
     addHours(new Date(currentArrivingTime), 1)
   );
   const [currentMinLeavingTime, setCurrentMinLeavingTime] = useState(0);
@@ -66,7 +68,6 @@ const TableMap = () => {
 
   useEffect(() => {
     setCurrentTablesToChangeAvailability(tablesStates);
-    console.log(listOfAllTables, 'GLAVNA lista svih stolova iz baze');
   }, [currentDate]);
 
   useEffect(() => {
@@ -85,21 +86,17 @@ const TableMap = () => {
   }, [currentTablesToChangeAvailability]);
 
   useEffect(() => {
-    console.log(tableOptions, 'table option SU');
-  }, [tableOptions]);
-
-  useEffect(() => {
     if (currentArrivingTime.getHours() <= currentLeavingTime.getHours()) {
       let allTablesThatHaveSomeTimeReserved = listOfAllTables.map(
-        (tableGroups) => {
-          return tableGroups.tables.map((table) => {
+        (tableGroups: any) => {
+          return tableGroups.tables.map((table: any) => {
             return table.reservedTimes.length > 0 ? table : null;
           });
         }
       );
 
       const withoutFalseValues = allTablesThatHaveSomeTimeReserved.map(
-        (arrayOfTables) => {
+        (arrayOfTables: any) => {
           return _.compact(arrayOfTables);
         }
       );
@@ -107,114 +104,107 @@ const TableMap = () => {
       let tablesWithTimesOverlapping;
 
       if (withoutFalseValues) {
-        tablesWithTimesOverlapping = withoutFalseValues.map((tableGroups) => {
-          return tableGroups.map((table) => {
-            if (table.reservedTimes?.length > 0) {
-              const timeAlreadyUsed = table.reservedTimes.some((time) => {
-                const timeSlotReserved = _.isEqual(
-                  { start: new Date(time?.start), end: new Date(time?.end) },
-                  {
-                    start: new Date(currentArrivingTime),
-                    end: new Date(currentLeavingTime),
+        tablesWithTimesOverlapping = withoutFalseValues.map(
+          (tableGroups: any) => {
+            return tableGroups.map((table: any) => {
+              if (table.reservedTimes?.length > 0) {
+                const timeAlreadyUsed = table.reservedTimes.some(
+                  (time: any) => {
+                    const timeSlotReserved = _.isEqual(
+                      {
+                        start: new Date(time?.start),
+                        end: new Date(time?.end),
+                      },
+                      {
+                        start: new Date(currentArrivingTime),
+                        end: new Date(currentLeavingTime),
+                      }
+                    );
+                    return timeSlotReserved === true;
                   }
                 );
-                return timeSlotReserved === true;
-              });
 
-              console.log(timeAlreadyUsed, 'korisceno vreme');
+                if (timeAlreadyUsed === true) {
+                  return table.id;
+                } else {
+                  const areTimesOverlapping = table.reservedTimes.some(
+                    (time: any) => {
+                      const day = currentDate.getDate();
+                      const month = currentDate.getMonth();
+                      const year = currentDate.getFullYear();
+                      const hourArrive = currentArrivingTime.getHours();
+                      const minutesArrive = currentArrivingTime.getMinutes();
+                      const hourLeave = currentLeavingTime.getHours();
+                      const minutesLeave = currentLeavingTime.getMinutes();
 
-              if (timeAlreadyUsed === true) {
-                return table.id;
-              } else {
-                const areTimesOverlapping = table.reservedTimes.some((time) => {
-                  const day = currentDate.getDate();
-                  const month = currentDate.getMonth();
-                  const year = currentDate.getFullYear();
-                  const hourArrive = currentArrivingTime.getHours();
-                  const minutesArrive = currentArrivingTime.getMinutes();
-                  const hourLeave = currentLeavingTime.getHours();
-                  const minutesLeave = currentLeavingTime.getMinutes();
+                      const arrive = new Date(
+                        year,
+                        month,
+                        day,
+                        hourArrive,
+                        minutesArrive,
+                        0
+                      );
 
-                  const arrive = new Date(
-                    year,
-                    month,
-                    day,
-                    hourArrive,
-                    minutesArrive,
-                    0
-                  );
+                      const leave = new Date(
+                        year,
+                        month,
+                        day,
+                        hourLeave,
+                        minutesLeave,
+                        0
+                      );
 
-                  const leave = new Date(
-                    year,
-                    month,
-                    day,
-                    hourLeave,
-                    minutesLeave,
-                    0
-                  );
-
-                  // console.log(time, 'Proba da vidimo sta je datum');
-
-                  // console.log(
-                  //   { start: new Date(time?.start), end: new Date(time?.end) },
-                  //   'iz BAZE',
-                  //   {
-                  //     start: new Date(arrive),
-                  //     end: new Date(leave),
-                  //   },
-                  //   'od korisnika'
-                  // );
-
-                  const checkIfTimesOverlapping = areIntervalsOverlapping(
-                    { start: new Date(time?.start), end: new Date(time?.end) },
-                    {
-                      start: new Date(arrive),
-                      end: new Date(leave),
-                    },
-                    {
-                      inclusive: true,
+                      const checkIfTimesOverlapping = areIntervalsOverlapping(
+                        {
+                          start: new Date(time?.start),
+                          end: new Date(time?.end),
+                        },
+                        {
+                          start: new Date(arrive),
+                          end: new Date(leave),
+                        },
+                        {
+                          inclusive: true,
+                        }
+                      );
+                      return checkIfTimesOverlapping === true;
                     }
                   );
-                  console.log(checkIfTimesOverlapping, 'provera iz overlapa');
-                  return checkIfTimesOverlapping === true;
-                });
-                console.log(areTimesOverlapping, 'ukrsteno vreme');
-                return areTimesOverlapping === true ? table.id : null;
+                  return areTimesOverlapping === true ? table.id : null;
+                }
               }
-            }
-          });
-        });
+            });
+          }
+        );
       }
 
       const tablesWithTimesOverlappingWithoutFalsyValues =
-        tablesWithTimesOverlapping.map((tableGroups) => {
-          return tableGroups.filter((item) => item !== null);
+        tablesWithTimesOverlapping.map((tableGroups: any) => {
+          return tableGroups.filter((item: any) => item !== null);
         });
 
-      console.log(
-        tablesWithTimesOverlappingWithoutFalsyValues,
-        'Evo stolovi koje je izdvojio koji bi trebalo da se prikazu'
-      );
-
-      let reservedTablesIds = [];
+      let reservedTablesIds: any = [];
 
       if (tablesWithTimesOverlappingWithoutFalsyValues) {
-        tablesWithTimesOverlappingWithoutFalsyValues.map((arrayOfTables) => {
-          return arrayOfTables.map((item) => {
-            return reservedTablesIds.push(item);
-          });
-        });
+        tablesWithTimesOverlappingWithoutFalsyValues.map(
+          (arrayOfTables: any) => {
+            return arrayOfTables.map((item: any) => {
+              return reservedTablesIds.push(item);
+            });
+          }
+        );
       }
 
       let currentTablesToChangeAvailability = _.cloneDeep(tablesStates);
 
       if (reservedTablesIds.length > 0) {
-        const reservedTablesToChangeState = reservedTablesIds.map((id) => {
+        const reservedTablesToChangeState = reservedTablesIds.map((id: any) => {
           return _.filter(currentTablesToChangeAvailability, { id: id });
         });
 
-        reservedTablesToChangeState.forEach((tableGroup) => {
-          return tableGroup.forEach((table) => {
+        reservedTablesToChangeState.forEach((tableGroup: any) => {
+          return tableGroup.forEach((table: any) => {
             return (table.occupied = true);
           });
         });
@@ -223,9 +213,7 @@ const TableMap = () => {
       }
 
       if (reservedTablesIds.length === 0) {
-        console.log('ULAZI U ELSE', reservedTablesIds);
-
-        currentTablesToChangeAvailability.forEach((table) => {
+        currentTablesToChangeAvailability.forEach((table: any) => {
           return (table.occupied = false);
         });
 
@@ -234,34 +222,29 @@ const TableMap = () => {
 
       // get blocked tables
 
-      let blockedTablesIds = [];
+      let blockedTablesIds: any = [];
 
-      listOfAllTables.map((tableGroups) => {
-        return tableGroups.tables.forEach((table) => {
+      listOfAllTables.map((tableGroups: any) => {
+        return tableGroups.tables.forEach((table: any) => {
           return table.available === false
             ? blockedTablesIds.push(table)
             : null;
         });
       });
 
-      console.log(blockedTablesIds, 'ajdijevi blokiranih');
-
       let currentTablesToChangeBlockingStatus = _.cloneDeep(tablesStates);
 
       if (blockedTablesIds.length > 0) {
-        const tablesToChangeBlockingStatus = blockedTablesIds.map((table) => {
-          return _.filter(currentTablesToChangeBlockingStatus, {
-            id: table.id,
-          });
-        });
-
-        console.log(
-          tablesToChangeBlockingStatus,
-          'tablesToChangeBlockingStatus'
+        const tablesToChangeBlockingStatus = blockedTablesIds.map(
+          (table: any) => {
+            return _.filter(currentTablesToChangeBlockingStatus, {
+              id: table.id,
+            });
+          }
         );
 
-        tablesToChangeBlockingStatus.forEach((tableGroup) => {
-          return tableGroup.forEach((table) => {
+        tablesToChangeBlockingStatus.forEach((tableGroup: any) => {
+          return tableGroup.forEach((table: any) => {
             return (table.available = false);
           });
         });
@@ -270,9 +253,7 @@ const TableMap = () => {
       }
 
       if (blockedTablesIds.length === 0) {
-        console.log('ULAZI U ELSE Blokiranih', blockedTablesIds);
-
-        currentTablesToChangeBlockingStatus.forEach((table) => {
+        currentTablesToChangeBlockingStatus.forEach((table: any) => {
           return (table.available = true);
         });
 
@@ -293,15 +274,15 @@ const TableMap = () => {
   };
 
   // add or subtract one day from a current date by clicking on chevrons
-  const changeDayHandlerPlus = (e) => {
-    setCurrentDate((prevState) => addDays(new Date(prevState), 1));
+  const changeDayHandlerPlus = () => {
+    setCurrentDate((prevState: any) => addDays(new Date(prevState), 1));
   };
 
-  const changeDayHandlerMinus = (e) => {
-    setCurrentDate((prevState) => subDays(new Date(prevState), 1));
+  const changeDayHandlerMinus = () => {
+    setCurrentDate((prevState: any) => subDays(new Date(prevState), 1));
   };
 
-  const changeHourHandlerPlusArrivingTime = (e) => {
+  const changeHourHandlerPlusArrivingTime = () => {
     if (currentArrivingTime.getHours() >= 21) {
       setCurrentArrivingTime(currentArrivingTime);
     } else {
@@ -309,7 +290,7 @@ const TableMap = () => {
     }
   };
 
-  const changeHourHandlerMinusArrivingTime = (e) => {
+  const changeHourHandlerMinusArrivingTime = () => {
     if (currentArrivingTime.getHours() <= 12) {
       setCurrentArrivingTime(currentArrivingTime);
     } else {
@@ -317,7 +298,7 @@ const TableMap = () => {
     }
   };
 
-  const changeHourHandlerPlusLeavingTime = (e) => {
+  const changeHourHandlerPlusLeavingTime = () => {
     const day = currentLeavingTime.getDate();
     const month = currentLeavingTime.getMonth();
     const year = currentLeavingTime.getFullYear();
@@ -329,7 +310,7 @@ const TableMap = () => {
     }
   };
 
-  const changeHourHandlerMinusLeavingTime = (e) => {
+  const changeHourHandlerMinusLeavingTime = () => {
     if (currentLeavingTime.getHours <= 13) {
       setCurrentLeavingTime(currentLeavingTime);
     } else {
@@ -340,9 +321,9 @@ const TableMap = () => {
   // Adding restaurant overview options - which tables are available at a given time
 
   // Manipulate table, book and cancel reservation
-  const changeTableState = (e) => {
-    let tableNumberClicked;
-    let tableSize;
+  const changeTableState = (e: any) => {
+    let tableNumberClicked: any;
+    let tableSize: any;
     // check which element is clicked in order to get proper data
     //  needed to find suitable table size and the clicked table
     // table size is defined by adding custom html attribute
@@ -358,14 +339,16 @@ const TableMap = () => {
 
     if (tableSize) {
       // first find the group in which the clicked table is
-      const allTablesForTheGroupSize = listOfAllTables.find((tables) => {
+      const allTablesForTheGroupSize = listOfAllTables.find((tables: any) => {
         return tables.key === tableSize;
       });
 
       // then find the table that is clicked
-      const clickedTable = allTablesForTheGroupSize.tables.find((table) => {
-        return table.id === tableNumberClicked;
-      });
+      const clickedTable = allTablesForTheGroupSize.tables.find(
+        (table: any) => {
+          return table.id === tableNumberClicked;
+        }
+      );
 
       if (clickedTable) {
         setCurrentTable(clickedTable);
@@ -379,7 +362,6 @@ const TableMap = () => {
     <>
       <TableOptionsModal table={currentTable} size={currentTableSize} />
       <SearchReservationsModal />
-
       <section className="date-time-tablemap-wrapper relative flex flex-col items-center">
         <section className="date-and-time text-center md:mt-8 lg:mt-14">
           <h1 className="text-2xl mt-2 mb-4">BORDOVERSIKT</h1>
@@ -388,7 +370,7 @@ const TableMap = () => {
               variant="outlined"
               size="small"
               className="mr-1 lg:mr-8"
-              onClick={(e) => changeDayHandlerMinus(e)}
+              onClick={(e: any) => changeDayHandlerMinus(e)}
               sx={{ backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
             >
               <ChevronLeftIcon />
@@ -429,7 +411,7 @@ const TableMap = () => {
               className="ml-1 lg:ml-8"
               sx={{ backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
             >
-              <ChevronRightIcon onClick={(e) => changeDayHandlerPlus(e)} />
+              <ChevronRightIcon onClick={(e: any) => changeDayHandlerPlus(e)} />
             </Button>
           </div>
 
@@ -441,7 +423,7 @@ const TableMap = () => {
               sx={{ backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
             >
               <ChevronLeftIcon
-                onClick={(e) => changeHourHandlerMinusArrivingTime(e)}
+                onClick={(e: any) => changeHourHandlerMinusArrivingTime(e)}
               />
             </Button>
 
@@ -452,6 +434,7 @@ const TableMap = () => {
                     label="Velg ankomsttid"
                     minTime={new Date(0, 0, 0, 12)}
                     maxTime={new Date(0, 0, 0, 21, 0)}
+                    //@ts-ignore
                     disablePast
                     ampm={false}
                     minutesStep={15}
@@ -482,7 +465,7 @@ const TableMap = () => {
               sx={{ backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
             >
               <ChevronRightIcon
-                onClick={(e) => changeHourHandlerPlusArrivingTime(e)}
+                onClick={(e: any) => changeHourHandlerPlusArrivingTime(e)}
               />
             </Button>
           </div>
@@ -495,7 +478,7 @@ const TableMap = () => {
               sx={{ backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
             >
               <ChevronLeftIcon
-                onClick={(e) => changeHourHandlerMinusLeavingTime(e)}
+                onClick={(e: any) => changeHourHandlerMinusLeavingTime(e)}
               />
             </Button>
 
@@ -506,6 +489,7 @@ const TableMap = () => {
                     label="Velg avreisetid"
                     minTime={new Date(0, 0, 0, currentMinLeavingTime, 30)}
                     maxTime={new Date(0, 0, 0, 22, 0)}
+                    //@ts-ignore
                     disablePast
                     ampm={false}
                     minutesStep={15}
@@ -561,14 +545,16 @@ const TableMap = () => {
                   className={` ${
                     currentTablesStates[7]?.occupied === true ? 'bg-rose ' : ''
                   }, ${
+                    //@ts-ignore
                     currentBlockedTables[7]?.available === false
                       ? 'bg-sivaBlockedTable '
                       : ''
                   }
                 rectangle-tables w-16 h-10 flex justify-center items-center border-2 rounded border-red-300 shadow-lg md:mt-4 md:ml-8 m-2`}
+                  //@ts-ignore
                   alt="table8"
                   data-size="4"
-                  onClick={(e) => changeTableState(e)}
+                  onClick={(e: any) => changeTableState(e)}
                 >
                   <h3>8</h3>
                 </div>
@@ -578,10 +564,12 @@ const TableMap = () => {
                   className={` ${
                     currentTablesStates[13]?.occupied === true ? 'bg-rose ' : ''
                   }, ${
+                    //@ts-ignore
                     currentBlockedTables[13]?.available === false
                       ? 'bg-sivaBlockedTable '
                       : ''
                   } rectangle-tables w-16 h-10 flex justify-center items-center border-2 rounded border-red-300 shadow-lg md:mt-4 md:mr-8 m-2`}
+                  //@ts-ignore
                   alt="table15"
                   data-size="4"
                   onClick={(e) => changeTableState(e)}
@@ -592,6 +580,7 @@ const TableMap = () => {
               <div className="invisible-element-3 bg-siva border-sivaBorder flex justify-start border-t-4 border-r-4 pb-1 rounded-tr-lg">
                 <div
                   className="rectangle-tables w-16 h-10 flex justify-center items-center md:ml-8 m-2"
+                  //@ts-ignore
                   alt="invisible"
                   onClick={(e) => changeTableState(e)}
                 ></div>
@@ -601,11 +590,14 @@ const TableMap = () => {
                   className={` ${
                     currentTablesStates[6]?.occupied === true ? 'bg-rose ' : ''
                   }, ${
+                    //@ts-ignore
                     currentBlockedTables[6]?.available === false
                       ? 'bg-sivaBlockedTable '
                       : ''
                   } rectangle-tables w-16 h-10 flex justify-center items-center border-2 rounded border-red-300 shadow-lg  md:ml-8 m-2`}
+                  //@ts-ignore
                   alt="table7"
+                  //@ts-ignore
                   data-size="4"
                   onClick={(e) => changeTableState(e)}
                 >
@@ -617,10 +609,12 @@ const TableMap = () => {
                   className={` ${
                     currentTablesStates[12]?.occupied === true ? 'bg-rose ' : ''
                   }, ${
+                    //@ts-ignore
                     currentBlockedTables[12]?.available === false
                       ? 'bg-sivaBlockedTable '
                       : ''
                   } rectangle-tables w-16 h-10 flex justify-center items-center border-2 rounded border-red-300 shadow-lg md:mr-8 m-2`}
+                  //@ts-ignore
                   alt="table14"
                   data-size="4"
                   onClick={(e) => changeTableState(e)}
@@ -631,6 +625,7 @@ const TableMap = () => {
               <div className="invisible-element-4 bg-siva border-sivaBorder flex justify-start border-r-4 pb-1">
                 <div
                   className="rectangle-tables w-16 h-10 flex justify-center items-center md:ml-8 m-2"
+                  //@ts-ignore
                   alt="invisible"
                   onClick={(e) => changeTableState(e)}
                 ></div>
@@ -643,10 +638,12 @@ const TableMap = () => {
                   className={` ${
                     currentTablesStates[5]?.occupied === true ? 'bg-rose ' : ''
                   }, ${
+                    //@ts-ignore
                     currentBlockedTables[5]?.available === false
                       ? 'bg-sivaBlockedTable '
                       : ''
                   } rectangle-tables w-16 h-10 flex justify-center items-center border-2 rounded border-red-300 shadow-lg  md:ml-8 m-2`}
+                  //@ts-ignore
                   alt="table6"
                   data-size="2"
                   onClick={(e) => changeTableState(e)}
@@ -659,10 +656,12 @@ const TableMap = () => {
                   className={` ${
                     currentTablesStates[11]?.occupied === true ? 'bg-rose ' : ''
                   }, ${
+                    //@ts-ignore
                     currentBlockedTables[11]?.available === false
                       ? 'bg-sivaBlockedTable '
                       : ''
                   } rectangle-tables w-16 h-10 flex justify-center items-center border-2 rounded border-red-300 shadow-lg md:mr-8 m-2`}
+                  //@ts-ignore
                   alt="table13"
                   data-size="4"
                   onClick={(e) => changeTableState(e)}
@@ -673,6 +672,7 @@ const TableMap = () => {
               <div className="invisible-element-5 bg-siva border-sivaBorder flex justify-start border-r-4 pb-1">
                 <div
                   className="rectangle-tables w-16 h-10 flex justify-center items-center md:ml-8 m-2"
+                  //@ts-ignore
                   alt="invisible"
                   onClick={(e) => changeTableState(e)}
                 ></div>
@@ -682,10 +682,12 @@ const TableMap = () => {
                   className={` ${
                     currentTablesStates[4]?.occupied === true ? 'bg-rose ' : ''
                   }, ${
+                    //@ts-ignore
                     currentBlockedTables[4]?.available === false
                       ? 'bg-sivaBlockedTable '
                       : ''
                   } rectangle-tables w-16 h-10 flex justify-center items-center border-2 rounded border-red-300 shadow-lg md:ml-8 m-2`}
+                  //@ts-ignore
                   alt="table5"
                   data-size="4"
                   onClick={(e) => changeTableState(e)}
@@ -698,10 +700,12 @@ const TableMap = () => {
                   className={` ${
                     currentTablesStates[10]?.occupied === true ? 'bg-rose ' : ''
                   }, ${
+                    //@ts-ignore
                     currentBlockedTables[10]?.available === false
                       ? 'bg-sivaBlockedTable '
                       : ''
                   } rectangle-tables w-16 h-10 flex justify-center items-center border-2 rounded border-red-300 shadow-lg md:mr-8 m-2`}
+                  //@ts-ignore
                   alt="table12"
                   data-size="12"
                   onClick={(e) => changeTableState(e)}
@@ -712,6 +716,7 @@ const TableMap = () => {
               <div className="invisible-element-6 bg-siva border-sivaBorder flex justify-start border-r-4 pb-1">
                 <div
                   className="rectangle-tables w-16 h-10 flex justify-center items-center md:ml-8 m-2"
+                  //@ts-ignore
                   alt="invisible"
                   onClick={(e) => changeTableState(e)}
                 ></div>
@@ -723,10 +728,12 @@ const TableMap = () => {
                   className={` ${
                     currentTablesStates[3]?.occupied === true ? 'bg-rose ' : ''
                   }, ${
+                    //@ts-ignore
                     currentBlockedTables[3]?.available === false
                       ? 'bg-sivaBlockedTable '
                       : ''
                   } rectangle-tables w-16 h-10 flex justify-center items-center border-2 rounded border-red-300 shadow-lg md:ml-8 m-2`}
+                  //@ts-ignore
                   alt="table4"
                   data-size="4"
                   onClick={(e) => changeTableState(e)}
@@ -737,6 +744,7 @@ const TableMap = () => {
               <div className="invisible-element bg-siva border-sivaBorder flex justify-start border-r-4 pb-1">
                 <div
                   className="rectangle-tables w-16 h-10 flex justify-center items-center md:ml-8 m-2"
+                  //@ts-ignore
                   alt="invisible"
                   onClick={(e) => changeTableState(e)}
                 ></div>
@@ -744,6 +752,7 @@ const TableMap = () => {
               <div className="invisible-element-7 bg-siva border-sivaBorder flex justify-start border-r-4 pb-1">
                 <div
                   className="rectangle-tables w-16 h-10 flex justify-center items-center md:ml-8 m-2"
+                  //@ts-ignore
                   alt="invisible"
                   onClick={(e) => changeTableState(e)}
                 ></div>
@@ -756,10 +765,12 @@ const TableMap = () => {
                   className={` ${
                     currentTablesStates[2]?.occupied === true ? 'bg-rose ' : ''
                   }, ${
+                    //@ts-ignore
                     currentBlockedTables[2]?.available === false
                       ? 'bg-sivaBlockedTable '
                       : ''
                   } rectangle-tables w-10 h-10 flex justify-center items-center border-2 rounded border-red-300 shadow-lg md:ml-8 m-2`}
+                  //@ts-ignore
                   alt="table3"
                   data-size="2"
                   onClick={(e) => changeTableState(e)}
@@ -772,10 +783,12 @@ const TableMap = () => {
                   className={` ${
                     currentTablesStates[9]?.occupied === true ? 'bg-rose ' : ''
                   }, ${
+                    //@ts-ignore
                     currentBlockedTables[9]?.available === false
                       ? 'bg-sivaBlockedTable '
                       : ''
                   } rectangle-tables w-16 h-10 flex justify-center items-center border-2 rounded border-red-300 shadow-lg  md:mr-8 m-2`}
+                  //@ts-ignore
                   alt="table11"
                   data-size="4"
                   onClick={(e) => changeTableState(e)}
@@ -788,10 +801,12 @@ const TableMap = () => {
                   className={` ${
                     currentTablesStates[14]?.occupied === true ? 'bg-rose ' : ''
                   }, ${
+                    //@ts-ignore
                     currentBlockedTables[14]?.available === false
                       ? 'bg-sivaBlockedTable '
                       : ''
                   } rectangle-tables w-16 h-28 flex justify-center items-center border-2 shadow-lg rounded border-red-300 md:ml-8 m-2`}
+                  //@ts-ignore
                   alt="table20"
                   onClick={(e) => changeTableState(e)}
                 >
@@ -803,10 +818,13 @@ const TableMap = () => {
                   className={` ${
                     currentTablesStates[1]?.occupied === true ? 'bg-rose ' : ''
                   }, ${
+                    //@ts-ignore
+
                     currentBlockedTables[1]?.available === false
                       ? 'bg-sivaBlockedTable '
                       : ''
                   } rectangle-tables w-10 h-10 flex justify-center items-center border-2 rounded border-red-300 shadow-lg md:ml-8 m-2`}
+                  //@ts-ignore
                   alt="table2"
                   data-size="2"
                   onClick={(e) => changeTableState(e)}
@@ -819,10 +837,14 @@ const TableMap = () => {
                   className={` ${
                     currentTablesStates[8]?.occupied === true ? 'bg-rose ' : ''
                   }, ${
+                    //@ts-ignore
+
                     currentBlockedTables[8]?.available === false
                       ? 'bg-sivaBlockedTable '
                       : ''
                   } rectangle-tables w-16 h-10 flex justify-center items-center border-2 rounded border-red-300 shadow-lg md:mr-8 m-2`}
+                  //@ts-ignore
+
                   alt="table10"
                   data-size="6"
                   onClick={(e) => changeTableState(e)}
@@ -836,10 +858,13 @@ const TableMap = () => {
                   className={` ${
                     currentTablesStates[0]?.occupied === true ? 'bg-rose ' : ''
                   }, ${
+                    //@ts-ignore
+
                     currentBlockedTables[0]?.available === false
                       ? 'bg-sivaBlockedTable '
                       : ''
                   } rectangle-tables w-10 h-10 flex justify-center items-center border-2 rounded border-red-300 shadow-lg md:ml-8 m-2`}
+                  //@ts-ignore
                   alt="table1"
                   data-size="2"
                   onClick={(e) => changeTableState(e)}
@@ -851,6 +876,8 @@ const TableMap = () => {
               <div className="invisible-element-2 bg-siva border-sivaBorder flex justify-start border-r-4 border-t-4">
                 <div
                   className="rectangle-tables w-16 h-10 flex justify-center items-center md:ml-8 m-2"
+                  //@ts-ignore
+
                   alt="invisible"
                   onClick={(e) => changeTableState(e)}
                 ></div>
@@ -862,10 +889,12 @@ const TableMap = () => {
                   className={` ${
                     currentTablesStates[15]?.occupied === true ? 'bg-rose ' : ''
                   }, ${
+                    //@ts-ignore
                     currentBlockedTables[15]?.available === false
                       ? 'bg-sivaBlockedTable '
                       : ''
                   } round-tables w-12 h-12 border-2 rounded-full border-red-300 shadow-lg flex justify-center items-center md:ml-8 m-2 mt-2`}
+                  //@ts-ignore
                   alt="table30"
                   data-size="5"
                   onClick={(e) => changeTableState(e)}
@@ -878,10 +907,12 @@ const TableMap = () => {
                   className={` ${
                     currentTablesStates[16]?.occupied === true ? 'bg-rose ' : ''
                   }, ${
+                    //@ts-ignore
                     currentBlockedTables[16]?.available === false
                       ? 'bg-sivaBlockedTable '
                       : ''
                   } round-tables w-12 h-12 border-2 rounded-full border-red-300 shadow-lg flex justify-center items-center m-2 mt-2 ml-8`}
+                  //@ts-ignore
                   alt="table31"
                   data-size="5"
                   onClick={(e) => changeTableState(e)}
@@ -897,10 +928,12 @@ const TableMap = () => {
                         ? 'bg-rose '
                         : ''
                     }, ${
+                      //@ts-ignore
                       currentBlockedTables[27]?.available === false
                         ? 'bg-sivaBlockedTable '
                         : ''
                     }  w-10 h-10 rotate-45 border-2 rounded border-red-300 shadow-lg flex justify-center items-center m-2 ml-8 `}
+                    //@ts-ignore
                     alt="table52"
                     data-size="4"
                     onClick={(e) => changeTableState(e)}
@@ -915,11 +948,15 @@ const TableMap = () => {
                         ? 'bg-rose '
                         : ''
                     }, ${
+                      //@ts-ignore
                       currentBlockedTables[26]?.available === false
                         ? 'bg-sivaBlockedTable '
                         : ''
                     }  w-10 h-10 rotate-45 border-2 rounded border-red-300 shadow-lg flex justify-center items-center m-2 ml-8`}
+                    //@ts-ignore
                     alt="table51"
+                    //@ts-ignore
+
                     data-size="4"
                     onClick={(e) => changeTableState(e)}
                   >
@@ -932,10 +969,12 @@ const TableMap = () => {
                   className={` ${
                     currentTablesStates[17]?.occupied === true ? 'bg-rose ' : ''
                   }, ${
+                    //@ts-ignore
                     currentBlockedTables[17]?.available === false
                       ? 'bg-sivaBlockedTable '
                       : ''
                   } rectangle-tables w-10 h-10 border-2 rounded border-red-300 shadow-lg flex justify-center items-center md:mr-8 m-2 mt-2 `}
+                  //@ts-ignore
                   alt="table32"
                   data-size="2"
                   onClick={(e) => changeTableState(e)}
@@ -948,10 +987,14 @@ const TableMap = () => {
                   className={` ${
                     currentTablesStates[20]?.occupied === true ? 'bg-rose ' : ''
                   }, ${
+                    //@ts-ignore
+
                     currentBlockedTables[20]?.available === false
                       ? 'bg-sivaBlockedTable '
                       : ''
                   } rectangle-tables w-16 h-10 border-2 rounded border-red-300 shadow-lg flex justify-center items-center md:ml-8 m-2 mt-2`}
+                  //@ts-ignore
+
                   alt="table40"
                   data-size="4"
                   onClick={(e) => changeTableState(e)}
@@ -964,10 +1007,14 @@ const TableMap = () => {
                   className={` ${
                     currentTablesStates[25]?.occupied === true ? 'bg-rose ' : ''
                   }, ${
+                    //@ts-ignore
+
                     currentBlockedTables[25]?.available === false
                       ? 'bg-sivaBlockedTable '
                       : ''
                   } round-tables  w-12 h-12 border-2 rounded-full border-red-300 shadow-lg flex justify-center items-center m-2 mt-2 ml-8`}
+                  //@ts-ignore
+
                   alt="table50"
                   data-size="6"
                   onClick={(e) => changeTableState(e)}
@@ -980,6 +1027,8 @@ const TableMap = () => {
                   className={` ${
                     currentTablesStates[18]?.occupied === true ? 'bg-rose ' : ''
                   }, ${
+                    //@ts-ignore
+
                     currentBlockedTables[18]?.available === false
                       ? 'bg-sivaBlockedTable '
                       : ''
@@ -996,10 +1045,14 @@ const TableMap = () => {
                   className={` ${
                     currentTablesStates[21]?.occupied === true ? 'bg-rose ' : ''
                   }, ${
+                    //@ts-ignore
+
                     currentBlockedTables[21]?.available === false
                       ? 'bg-sivaBlockedTable '
                       : ''
                   } rectangle-tables  w-16 h-10 border-2 rounded border-red-300 shadow-lg flex justify-center items-center md:ml-8 m-2 mt-2`}
+                  //@ts-ignore
+
                   alt="table41"
                   data-size="4"
                   onClick={(e) => changeTableState(e)}
@@ -1012,10 +1065,14 @@ const TableMap = () => {
                   className={` ${
                     currentTablesStates[19]?.occupied === true ? 'bg-rose ' : ''
                   }, ${
+                    //@ts-ignore
+
                     currentBlockedTables[19]?.available === false
                       ? 'bg-sivaBlockedTable '
                       : ''
                   } rectangle-tables  w-10 h-10 border-2 rounded border-red-300 shadow-lg  flex justify-center items-center md:mr-8 m-2 mt-2`}
+                  //@ts-ignore
+
                   alt="table34"
                   data-size="2"
                   onClick={(e) => changeTableState(e)}
@@ -1028,10 +1085,14 @@ const TableMap = () => {
                   className={` ${
                     currentTablesStates[22]?.occupied === true ? 'bg-rose ' : ''
                   }, ${
+                    //@ts-ignore
+
                     currentBlockedTables[22]?.available === false
                       ? 'bg-sivaBlockedTable '
                       : ''
                   } rectangle-tables  w-16 h-10 border-2 rounded border-red-300 shadow-lg  flex justify-center items-center md:ml-8 m-2 mt-2`}
+                  //@ts-ignore
+
                   alt="table42"
                   data-size="4"
                   onClick={(e) => changeTableState(e)}
@@ -1044,10 +1105,13 @@ const TableMap = () => {
                   className={` ${
                     currentTablesStates[23]?.occupied === true ? 'bg-rose ' : ''
                   }, ${
+                    //@ts-ignore
+
                     currentBlockedTables[23]?.available === false
                       ? 'bg-sivaBlockedTable '
                       : ''
                   } rectangle-tables w-16 h-10 border-2 rounded border-red-300 shadow-lg  flex justify-center items-center m-2 mt-2 ml-8`}
+                  //@ts-ignore
                   alt="table43"
                   data-size="4"
                   onClick={(e) => changeTableState(e)}
@@ -1060,10 +1124,12 @@ const TableMap = () => {
                   className={` ${
                     currentTablesStates[24]?.occupied === true ? 'bg-rose ' : ''
                   }, ${
+                    //@ts-ignore
                     currentBlockedTables[24]?.available === false
                       ? 'bg-sivaBlockedTable '
                       : ''
                   } rectangle-tables w-16 h-10 border-2 rounded border-red-300 shadow-lg  flex justify-center items-center md:mr-8 m-2 mt-2 mb-4`}
+                  //@ts-ignore
                   alt="table44"
                   data-size="8"
                   onClick={(e) => changeTableState(e)}
@@ -1075,6 +1141,7 @@ const TableMap = () => {
           </div>
         </section>
       </section>
+      //
     </>
   );
 };

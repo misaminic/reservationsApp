@@ -11,26 +11,31 @@ import _ from 'lodash';
 import MsgModal from '../components/MsgModal';
 import { format, areIntervalsOverlapping, addDays, addHours } from 'date-fns';
 
-const BookTableManually = ({ table, size }) => {
-  const { manuallyBookATable, setDate, dataFromDb, showTableAvailabilityMsg } =
-    useAppContext();
+const BookTableManually = ({ table, size }: any) => {
+  const {
+    manuallyBookATable,
+    setDate,
+    dataFromDb,
+    showTableAvailabilityMsg,
+  }: any = useAppContext();
 
-  const [currentDate, setCurrentDate] = useState(new Date());
-  const [timeStartEndUserInput, setTimeStartEndUserInput] = useState({});
+  const [currentDate, setCurrentDate] = useState<any>(new Date());
+  const [timeStartEndUserInput, setTimeStartEndUserInput] = useState<any>({});
 
-  const [arrivingTime, setArrivingTime] = useState(new Date());
-  const [leavingTime, setLeavingTime] = useState(new Date());
+  const [arrivingTime, setArrivingTime] = useState<any>(new Date());
+  const [leavingTime, setLeavingTime] = useState<any>(new Date());
 
-  const [arrivingTimeAsString, setArrivingTimeAsString] = useState('');
-  const [leavingTimeAsString, setLeavingTimeAsString] = useState('');
+  const [arrivingTimeAsString, setArrivingTimeAsString] = useState<string>('');
+  const [leavingTimeAsString, setLeavingTimeAsString] = useState<string>('');
 
-  const [isName, setIsName] = useState('');
-  const [isEmail, setIsEmail] = useState('');
+  const [isName, setIsName] = useState<string>('');
+  const [isEmail, setIsEmail] = useState<string>('');
 
-  const [minLeaveTimeForTimePicker, setMinLeaveTimeForTimePicker] = useState(0);
+  const [minLeaveTimeForTimePicker, setMinLeaveTimeForTimePicker] =
+    useState<number>(0);
 
   //   set maximum date in future for booking
-  const [twoWeeksInFuture, setTwoWeeksInFuture] = useState(
+  const [twoWeeksInFuture, setTwoWeeksInFuture] = useState<any>(
     addDays(new Date(), 13)
   );
 
@@ -49,20 +54,10 @@ const BookTableManually = ({ table, size }) => {
       const dateFormatDbReady = currentDate.toString().slice(0, 15);
       setDate(dateFormatDbReady);
     }
-    console.log(
-      dataFromDb.data?.reservations,
-      dateFormatDbReady,
-      'PROMENA DATUMA'
-    );
   }, [currentDate]);
 
   useEffect(() => {
     if (arrivingTime && leavingTime) {
-      // const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
-      // const arrival = zonedTimeToUtc(arrivingTime, timeZone);
-      // const leaving = zonedTimeToUtc(leavingTime, timeZone);
-      // console.log(arrivingTime.toISOString());
-
       const day = currentDate.getDate();
       const month = currentDate.getMonth();
       const year = currentDate.getFullYear();
@@ -75,6 +70,7 @@ const BookTableManually = ({ table, size }) => {
       const leave = new Date(year, month, day, hourLeave, minutesLeave, 0);
 
       setMinLeaveTimeForTimePicker(
+        //@ts-ignore
         new Date(year, month, day, hourArrive, minutesArrive + 30, 0)
       );
 
@@ -86,53 +82,6 @@ const BookTableManually = ({ table, size }) => {
       setLeavingTimeAsString(format(leavingTime, 'H:mm'));
     }
   }, [currentDate, arrivingTime, leavingTime]);
-
-  //   Effect which is adjusting minutes so we skip having minutes which are "round"
-  // probably won't be needed with the current setup
-  //   useEffect(() => {
-  //     // set minutes for arrivalTime and leavingTime to be 0, 15, 30 or 45
-  //     const day = currentDate.getDate();
-  //     const month = currentDate.getMonth();
-  //     const year = currentDate.getFullYear();
-  //     const hour = currentDate.getHours();
-  //     const minutes = currentDate.getMinutes();
-
-  //     // arrivingTime
-
-  //     if (minutes > 0 && minutes < 15) {
-  //       setArrivingTime(new Date(year, month, day, hour, 15));
-  //     }
-
-  //     if (minutes > 15 && minutes < 30) {
-  //       setArrivingTime(new Date(year, month, day, hour, 30));
-  //     }
-
-  //     if (minutes > 30 && minutes < 45) {
-  //       setArrivingTime(new Date(year, month, day, hour, 45));
-  //     }
-
-  //     if (minutes > 45) {
-  //       setArrivingTime(new Date(year, month, day, hour, 0));
-  //     }
-
-  //     // currentLeavingTime
-
-  //     if (minutes > 0 && minutes < 15) {
-  //       setLeavingTime(new Date(year, month, day, hour + 1, 15));
-  //     }
-
-  //     if (minutes > 15 && minutes < 30) {
-  //       setLeavingTime(new Date(year, month, day, hour + 1, 30));
-  //     }
-
-  //     if (minutes > 30 && minutes < 45) {
-  //       setLeavingTime(new Date(year, month, day, hour + 1, 45));
-  //     }
-
-  //     if (minutes > 45) {
-  //       setLeavingTime(new Date(year, month, day, hour + 1, 0));
-  //     }
-  //   }, []);
 
   const submitAndBookTheTable = (e) => {
     e.preventDefault();
@@ -166,7 +115,7 @@ const BookTableManually = ({ table, size }) => {
     if (table.reservedTimes?.length > 0) {
       console.log('book manually usao kad postoji rezervacija');
 
-      const timeAlreadyUsed = table.reservedTimes.some((time) => {
+      const timeAlreadyUsed = table.reservedTimes.some((time: any) => {
         const timeSlotReserved = _.isEqual(
           { start: new Date(time?.start), end: new Date(time?.end) },
           timeStartEndUserInput
@@ -182,7 +131,7 @@ const BookTableManually = ({ table, size }) => {
       }
 
       if (timeAlreadyUsed === false) {
-        const areTimesOverlapping = table.reservedTimes.find((time) => {
+        const areTimesOverlapping = table.reservedTimes.find((time: any) => {
           console.log(
             new Date(time?.start),
             new Date(time?.end),
@@ -200,7 +149,7 @@ const BookTableManually = ({ table, size }) => {
 
           return checkIfTimesOverlapping === true;
         });
-        console.log(areTimesOverlapping, 'da li preplicu');
+
         if (areTimesOverlapping) {
           showTableAvailabilityMsg(
             true,
@@ -232,7 +181,6 @@ const BookTableManually = ({ table, size }) => {
         }
       }
     } else {
-      //   console.log('book manually usao kad ne postoji nijedna rezervacija');
       const updatedTable = {
         ...table,
         reservedTimes: [timeStartEndUserInput],
@@ -278,6 +226,8 @@ const BookTableManually = ({ table, size }) => {
               label="Velg ankomsttid"
               minTime={new Date(0, 0, 0, 12)}
               maxTime={new Date(0, 0, 0, 21, 0)}
+              //@ts-ignore
+
               disablePast
               ampm={false}
               minutesStep={15}
@@ -292,6 +242,8 @@ const BookTableManually = ({ table, size }) => {
               label="Velg avreisetid"
               minTime={minLeaveTimeForTimePicker}
               maxTime={new Date(0, 0, 0, 22, 0)}
+              //@ts-ignore
+
               disablePast
               ampm={false}
               minutesStep={15}
@@ -304,7 +256,6 @@ const BookTableManually = ({ table, size }) => {
 
             <section className="email-name-section">
               <article>
-                {/* <h5>Reservation details</h5> */}
                 <form className="person__form ">
                   <div className="person__form__fields flex flex-col items-center">
                     <TextField

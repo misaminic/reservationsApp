@@ -12,7 +12,7 @@ import SingleTableFindReservationsModal from '../components/SingleTableFindReser
 
 // type msgTypes = { show?: boolean; msg?: string };
 
-const TableOptionsModal = ({ table, size }) => {
+const TableOptionsModal = ({ table, size }: any) => {
   const {
     tableOptions,
     showTableOptionsModal,
@@ -22,7 +22,7 @@ const TableOptionsModal = ({ table, size }) => {
     listOfAllTables,
     updateListOfAllTables,
     sendData,
-  } = useAppContext();
+  }: any = useAppContext();
 
   const closeOptionsModal = () => {
     showTableOptionsModal();
@@ -50,27 +50,28 @@ const TableOptionsModal = ({ table, size }) => {
     p: 4,
   };
 
-  const bookTheTable = (currentPart) => {
+  const bookTheTable = (currentPart: number) => {
     changeTableOptionsModalPart(currentPart);
   };
 
-  const cancelTableReservation = (currentPart) => {
+  const cancelTableReservation = (currentPart: number) => {
     changeTableOptionsModalPart(currentPart);
   };
 
-  const lockUnlockATable = (currentPart) => {
-    // await axiosFetch();
+  const lockUnlockATable = (currentPart: number) => {
     changeTableOptionsModalPart(currentPart);
-    const updateTablesAndAddLockedOnes = listOfAllTables.map((tableGroups) => {
-      return tableGroups.tables.map((item) => {
-        if (item.id === table.id) {
-          item.available = !table.available;
-          return item;
-        } else {
-          return item;
-        }
-      });
-    });
+    const updateTablesAndAddLockedOnes = listOfAllTables.map(
+      (tableGroups: any) => {
+        return tableGroups.tables.map((item: any) => {
+          if (item.id === table.id) {
+            item.available = !table.available;
+            return item;
+          } else {
+            return item;
+          }
+        });
+      }
+    );
     updateListOfAllTables(listOfAllTables);
     sendData();
     showTableAvailabilityMsg(
@@ -83,10 +84,10 @@ const TableOptionsModal = ({ table, size }) => {
     <>
       <Modal
         open={tableOptions}
-        // onClose={handleClose}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
+        {/* @ts-ignore */}
         <Box sx={style}>
           <div
             className={`flex mb-4 ${
@@ -187,11 +188,6 @@ const TableOptionsModal = ({ table, size }) => {
               </>
             )}
           </>
-          {/* {tableOptionsModalPart === 2 && (
-            <>
-              <MsgModal />
-            </>
-          )} */}
         </Box>
       </Modal>
     </>

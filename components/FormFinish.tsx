@@ -5,7 +5,7 @@ import { useAppContext } from '../context/AppContext';
 const FormFinish = () => {
   let router = useRouter();
 
-  const { changeCurrentFormPartVisible, axiosFetch } = useAppContext();
+  const { changeCurrentFormPartVisible, axiosFetch }: any = useAppContext();
 
   useEffect(() => {
     const timeout = setTimeout(() => {

@@ -16,32 +16,35 @@ const SearchReservationsModal = () => {
     updateListOfAllTables,
     sendData,
     axiosFetch,
-  } = useAppContext();
+  }: any = useAppContext();
 
-  const [nameToSearch, setNameToSearch] = useState('');
-  const [reservationsList, setReservationsList] = useState([]);
-  const [currentFoundReservations, setCurrentFoundReservations] = useState([]);
+  const [nameToSearch, setNameToSearch] = useState<any>('');
+  const [reservationsList, setReservationsList] = useState<any>([]);
+  const [currentFoundReservations, setCurrentFoundReservations] = useState<any>(
+    []
+  );
   const [currentTableToCancelReservation, setCurrentTableToCancelReservation] =
-    useState({});
+    useState<any>({});
   const [searchAgainAllReservations, setSearchAgainAllReservations] =
-    useState(false);
+    useState<any>(false);
 
-  const searchByName = (e) => {
+  const searchByName = (e: any) => {
     const name = e.target.value;
     setNameToSearch(name);
   };
 
   useEffect(() => {
+    //@ts-ignore
     const allTables = [];
 
-    listOfAllTables.forEach((tableGroups) => {
-      return tableGroups.tables.forEach((table) => {
+    listOfAllTables.forEach((tableGroups: any) => {
+      return tableGroups.tables.forEach((table: any) => {
         return allTables.push(table);
       });
     });
-
+    {/* @ts-ignore */}
     const foundCustomersInReservations = allTables.map((table) => {
-      return table.customers.map((customer) => {
+      return table.customers.map((customer: any) => {
         return customer.name.toLowerCase() === nameToSearch.toLowerCase()
           ? customer
           : null;
@@ -53,50 +56,47 @@ const SearchReservationsModal = () => {
         return item.length > 0;
       });
 
-    console.log(foundReservationsWithoutFalsyValues, 'ovo ti je ime pretraga');
 
     setCurrentFoundReservations(foundReservationsWithoutFalsyValues);
-
-    //   Nasao si ime odnosno sto, sad ispisi u modalu taj sto, omoguci klik na njega
-    // i reci obrisi rezervaciju - a to znaci uzmi vreme te rezervacije i uzmi ceo STO na kom je uradjena rezervacija
-    // pronadji to vreme i obrisi ga iz reservedTimes i zatim izbrisi i korisnika skroz iz customers i to je onda to
-    // :) :) :)
   }, [nameToSearch, searchAgainAllReservations]);
 
   useEffect(() => {
     if (currentTableToCancelReservation) {
       cancelReservation();
-      console.log(currentTableToCancelReservation, 'iz fun sto');
     }
   }, [currentTableToCancelReservation]);
 
   const cancelReservation = () => {
     const filterToFindOneToCancelReservation = listOfAllTables.map(
-      (tableGroups) => {
-        return tableGroups.tables.find((table) => {
+      (tableGroups: any) => {
+        return tableGroups.tables.find((table: any) => {
           return table.id === currentTableToCancelReservation.tableNumber;
         });
       }
     );
 
     const removedCustomer =
-      filterToFindOneToCancelReservation[0]?.customers.filter((customer) => {
-        return customer.email !== currentTableToCancelReservation.email;
-      });
+      filterToFindOneToCancelReservation[0]?.customers.filter(
+        (customer: any) => {
+          return customer.email !== currentTableToCancelReservation.email;
+        }
+      );
 
     const removedCustomersTime =
-      filterToFindOneToCancelReservation[0]?.reservedTimes.filter((time) => {
-        return !_.isEqual(
-          { start: new Date(time?.start), end: new Date(time?.end) },
-          {
-            start: new Date(currentTableToCancelReservation.time?.start),
-            end: new Date(currentTableToCancelReservation.time?.end),
-          }
-        );
-      });
+      filterToFindOneToCancelReservation[0]?.reservedTimes.filter(
+        (time: any) => {
+          return !_.isEqual(
+            { start: new Date(time?.start), end: new Date(time?.end) },
+            {
+              start: new Date(currentTableToCancelReservation.time?.start),
+              end: new Date(currentTableToCancelReservation.time?.end),
+            }
+          );
+        }
+      );
 
-    const updatedCustomersAndTimes = listOfAllTables.map((tableGroups) => {
-      return tableGroups.tables.forEach((table) => {
+    const updatedCustomersAndTimes = listOfAllTables.map((tableGroups: any) => {
+      return tableGroups.tables.forEach((table: any) => {
         if (table.id === currentTableToCancelReservation.tableNumber) {
           table.customers = removedCustomer;
           table.reservedTimes = removedCustomersTime;
@@ -104,40 +104,8 @@ const SearchReservationsModal = () => {
       });
     });
 
-    // updateListOfAllTables(updatedCustomersAndTimes);
     sendData();
     setSearchAgainAllReservations(!searchAgainAllReservations);
-
-    // console.log(updatedCustomersAndTimes, 'updated customers');
-
-    console.log(removedCustomer, 'sa uklonjenom musterijom');
-
-    // if (filterToFindOneToCancelReservation[0]) {
-    //   console.log('usao u if');
-    //   const removedCustomer =
-    //     filterToFindOneToCancelReservation[0].customers.filter((customer) => {
-    //       return customer.email !== currentTableToCancelReservation.email ? customer : null;
-    //     });
-
-    //   console.log(removedCustomer, 'removedCUstomer usred ifa');
-
-    //   const removedCustomerAndTime = removedCustomer.reservedTimes.filter(
-    //     (time) => {
-    //       const isTimeSlotReserved = _.isEqual(
-    //         { start: new Date(time?.start), end: new Date(time?.end) },
-    //         currentTableToCancelReservation.time
-    //       );
-
-    //       return isTimeSlotReserved === false ? time : null;
-    //     }
-    //   );
-    // }
-
-    console.log(filterToFindOneToCancelReservation, ' nakon svih promena sto');
-
-    console.log(listOfAllTables, 'lista svih stolova nakon svih promena');
-
-    // currentTableToCancelReservation
   };
 
   const style = {
@@ -154,21 +122,18 @@ const SearchReservationsModal = () => {
     overflow: 'scroll',
   };
 
-  useEffect(() => {
-    console.log(currentFoundReservations, 'trenutno pronadjeno');
-  }, [currentFoundReservations]);
-
   return (
     <>
       <Modal
         open={showSearchReservations}
-        // onClose={handleClose}
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
+        {/* @ts-ignore */}
         <Box sx={style} className="search-reservation-modal">
           <section className="relative">
             <div className="absolute top-0 right-0">
+              {/* @ts-ignore */}
               <Button
                 variant="outlined"
                 size="small"
@@ -191,8 +156,8 @@ const SearchReservationsModal = () => {
               />
               <div className="flex flex-wrap place-content-center">
                 {currentFoundReservations.length > 0
-                  ? currentFoundReservations.map((tableArrays) => {
-                      return tableArrays.map((table, index) => {
+                  ? currentFoundReservations.map((tableArrays: any) => {
+                      return tableArrays.map((table: any, index: any) => {
                         if (table?.name.length > 0) {
                           const date = format(
                             new Date(table?.time.start),

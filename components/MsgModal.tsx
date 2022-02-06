@@ -11,7 +11,7 @@ const MsgModal = () => {
   const {
     tableAvailabilityMsg: { show, msg },
     showTableAvailabilityMsg,
-  } = useAppContext();
+  }: any = useAppContext();
 
   const style = {
     position: 'absolute',

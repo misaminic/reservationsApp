@@ -8,8 +8,9 @@ import TextField from '@mui/material/TextField';
 import { format } from 'date-fns';
 import _ from 'lodash';
 import ArrowBackIcon from '@mui/icons-material/ArrowBack';
+import { AnyFn } from '@react-spring/types';
 
-const SingleTableFindReservationsModal = ({ table, previousPart }) => {
+const SingleTableFindReservationsModal = ({ table, previousPart }: any) => {
   const {
     showSingleTableReservations,
     listOfAllTables,
@@ -18,17 +19,18 @@ const SingleTableFindReservationsModal = ({ table, previousPart }) => {
     sendData,
     tableOptionsModalPart,
     changeTableOptionsModalPart,
-  } = useAppContext();
+  }: any = useAppContext();
 
-  const [currentFoundReservations, setCurrentFoundReservations] = useState([]);
-  // const [currentTableToCancelReservation, setCurrentTableToCancelReservation] =
-  //   useState({});
+  const [currentFoundReservations, setCurrentFoundReservations] = useState<any>(
+    []
+  );
+
   const [searchAgainAllReservations, setSearchAgainAllReservations] =
-    useState(false);
+    useState<boolean>(false);
 
   useEffect(() => {
-    const tempTable = listOfAllTables.map((tableGroups) => {
-      return tableGroups.tables.find((tableFromDb) => {
+    const tempTable = listOfAllTables.map((tableGroups: any) => {
+      return tableGroups.tables.find((tableFromDb: any) => {
         return tableFromDb.id === table.id;
       });
     });
@@ -37,49 +39,49 @@ const SingleTableFindReservationsModal = ({ table, previousPart }) => {
   }, [searchAgainAllReservations]);
 
   const cancelReservation = (
-    clickedCustomerReservationEmail,
-    clickedCustomerReservationTimeStart,
-    clickedCustomerReservationTimeEnd
-  ) => {
+    clickedCustomerReservationEmail: any,
+    clickedCustomerReservationTimeStart: any,
+    clickedCustomerReservationTimeEnd: any
+  ): any => {
     const filterToFindOneToCancelReservation = listOfAllTables.map(
-      (tableGroups) => {
-        return tableGroups.tables.find((tableFromDb) => {
+      (tableGroups: any) => {
+        return tableGroups.tables.find((tableFromDb: any) => {
           return tableFromDb.id === table.id;
         });
       }
     );
 
     const removedCustomer =
-      filterToFindOneToCancelReservation[0]?.customers.filter((customer) => {
-        return !_.isEqual(
-          {
-            start: new Date(customer.time?.start),
-            end: new Date(customer.time?.end),
-          },
-          {
-            start: new Date(clickedCustomerReservationTimeStart),
-            end: new Date(clickedCustomerReservationTimeEnd),
-          }
-        );
-      });
-
-    console.log(removedCustomer, 'prvi korak da li je sto tu');
+      filterToFindOneToCancelReservation[0]?.customers.filter(
+        (customer: any) => {
+          return !_.isEqual(
+            {
+              start: new Date(customer.time?.start),
+              end: new Date(customer.time?.end),
+            },
+            {
+              start: new Date(clickedCustomerReservationTimeStart),
+              end: new Date(clickedCustomerReservationTimeEnd),
+            }
+          );
+        }
+      );
 
     const removedCustomersTime =
-      filterToFindOneToCancelReservation[0]?.reservedTimes.filter((time) => {
-        return !_.isEqual(
-          { start: new Date(time?.start), end: new Date(time?.end) },
-          {
-            start: new Date(clickedCustomerReservationTimeStart),
-            end: new Date(clickedCustomerReservationTimeEnd),
-          }
-        );
-      });
+      filterToFindOneToCancelReservation[0]?.reservedTimes.filter(
+        (time: any) => {
+          return !_.isEqual(
+            { start: new Date(time?.start), end: new Date(time?.end) },
+            {
+              start: new Date(clickedCustomerReservationTimeStart),
+              end: new Date(clickedCustomerReservationTimeEnd),
+            }
+          );
+        }
+      );
 
-    console.log(removedCustomersTime, 'vreme SadE');
-
-    const updatedCustomersAndTimes = listOfAllTables.map((tableGroups) => {
-      return tableGroups.tables.forEach((tableFromDb) => {
+    const updatedCustomersAndTimes = listOfAllTables.map((tableGroups: any) => {
+      return tableGroups.tables.forEach((tableFromDb: any) => {
         if (tableFromDb.id === table.id) {
           table.customers = removedCustomer;
           table.reservedTimes = removedCustomersTime;
@@ -89,14 +91,6 @@ const SingleTableFindReservationsModal = ({ table, previousPart }) => {
 
     sendData();
     setSearchAgainAllReservations(!searchAgainAllReservations);
-
-    console.log(removedCustomer, 'sa uklonjenom musterijom');
-
-    console.log(filterToFindOneToCancelReservation, ' nakon svih promena sto');
-
-    console.log(listOfAllTables, 'lista svih stolova nakon svih promena');
-
-    // currentTableToCancelReservation
   };
 
   useEffect(() => {
@@ -128,6 +122,7 @@ const SingleTableFindReservationsModal = ({ table, previousPart }) => {
         aria-labelledby="modal-modal-title"
         aria-describedby="modal-modal-description"
       >
+        {/* @ts-ignore */}
         <Box sx={style} className="search-reservation-modal">
           <section className="relative">
             <div className="absolute top-0 right-0">
@@ -153,75 +148,82 @@ const SingleTableFindReservationsModal = ({ table, previousPart }) => {
               <h1 className="text-2xl mt-3 mb-6">RESERVASJON OVERSIKT</h1>
 
               <div className="flex flex-wrap place-content-center">
+                {/* //@ts-ignore  */}
                 {currentFoundReservations?.customers?.length ? (
-                  currentFoundReservations.customers.map((customer, index) => {
-                    if (customer?.name.length > 0) {
-                      const date = format(
-                        new Date(customer?.time.start),
-                        'd. M. yyyy.'
-                      );
+                  // @ts-ignore
+                  currentFoundReservations.customers.map(
+                    (customer, index): any => {
+                      if (customer?.name.length > 0) {
+                        const date = format(
+                          new Date(customer?.time.start),
+                          'd. M. yyyy.'
+                        );
 
-                      const reservedTimeStart = format(
-                        new Date(customer.time.start),
-                        'H:mm'
-                      );
+                        const reservedTimeStart = format(
+                          new Date(customer.time.start),
+                          'H:mm'
+                        );
 
-                      const reservedTimeEnd = format(
-                        new Date(customer.time.end),
-                        'H:mm'
-                      );
+                        const reservedTimeEnd = format(
+                          new Date(customer.time.end),
+                          'H:mm'
+                        );
 
-                      return (
-                        <ul
-                          className="flex flex-col place-items-start mt-6 lg:mr-4 md:mr-4 sm:mr-2 p-8 max-w-max min-w-min border border-black[0.1] shadow-lg"
-                          key={index}
-                        >
-                          <li>
-                            <span className="font-semibold">BORD NUMMER:</span>{' '}
-                            {table.id}
-                          </li>
-                          <li className="name-in-reservation-list mt-2">
-                            <span className="font-semibold">NAVN:</span>{' '}
-                            {customer.name}
-                          </li>
-                          <li className="mt-2">
-                            <span className="font-semibold">EMAIL:</span>{' '}
-                            {customer.email}
-                          </li>
-                          <li className="mt-2">
-                            <span className="font-semibold">DATO:</span> {date}
-                          </li>
-                          <li className="mt-2">
-                            <span className="font-semibold">FRA KLOKKA:</span>{' '}
-                            {reservedTimeStart}h
-                          </li>
-                          <li className="mt-2">
-                            <span className="font-semibold">TIL KLOKKA:</span>{' '}
-                            {reservedTimeEnd}h
-                          </li>
-
-                          <Button
-                            variant="contained"
-                            sx={{
-                              minWidth: 20,
-                              padding: '8px',
-                              mt: 2,
-                              placeSelf: 'center',
-                            }}
-                            onClick={() =>
-                              cancelReservation(
-                                customer.email,
-                                customer.time.start,
-                                customer.time.end
-                              )
-                            }
+                        return (
+                          <ul
+                            className="flex flex-col place-items-start mt-6 lg:mr-4 md:mr-4 sm:mr-2 p-8 max-w-max min-w-min border border-black[0.1] shadow-lg"
+                            key={index}
                           >
-                            Avbestille
-                          </Button>
-                        </ul>
-                      );
+                            <li>
+                              <span className="font-semibold">
+                                BORD NUMMER:
+                              </span>{' '}
+                              {table.id}
+                            </li>
+                            <li className="name-in-reservation-list mt-2">
+                              <span className="font-semibold">NAVN:</span>{' '}
+                              {customer.name}
+                            </li>
+                            <li className="mt-2">
+                              <span className="font-semibold">EMAIL:</span>{' '}
+                              {customer.email}
+                            </li>
+                            <li className="mt-2">
+                              <span className="font-semibold">DATO:</span>{' '}
+                              {date}
+                            </li>
+                            <li className="mt-2">
+                              <span className="font-semibold">FRA KLOKKA:</span>{' '}
+                              {reservedTimeStart}h
+                            </li>
+                            <li className="mt-2">
+                              <span className="font-semibold">TIL KLOKKA:</span>{' '}
+                              {reservedTimeEnd}h
+                            </li>
+
+                            <Button
+                              variant="contained"
+                              sx={{
+                                minWidth: 20,
+                                padding: '8px',
+                                mt: 2,
+                                placeSelf: 'center',
+                              }}
+                              onClick={() =>
+                                cancelReservation(
+                                  customer.email,
+                                  customer.time.start,
+                                  customer.time.end
+                                )
+                              }
+                            >
+                              Avbestille
+                            </Button>
+                          </ul>
+                        );
+                      }
                     }
-                  })
+                  )
                 ) : (
                   <h3>Det finnes ingen reservasjon på dette bordet</h3>
                 )}

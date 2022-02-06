@@ -78,7 +78,7 @@ const initialState = {
     { id: 52, occupied: false },
   ],
 };
-
+//@ts-ignore
 const AppContext = React.createContext();
 
 export const AppProvider = ({ children }: any) => {
@@ -112,7 +112,6 @@ export const AppProvider = ({ children }: any) => {
           state: {
             date: currentDate,
             tables: listOfAllTables,
-            kurac: 'jede',
           },
         }),
         headers: {
@@ -126,6 +125,8 @@ export const AppProvider = ({ children }: any) => {
     if (dataFromDb.data?.reservations?.tables) {
       updateListOfAllTables(dataFromDb.data.reservations.tables);
     } else {
+      //@ts-ignore
+
       updateListOfAllTables(freshCopyTableList);
     }
     console.log(dataFromDb, 'data from DB iz useEffect-a');
@@ -148,6 +149,7 @@ export const AppProvider = ({ children }: any) => {
 
               const currentCustomerToAddIndex =
                 state.tableManuallyBooked.customers.length - 1;
+              //@ts-ignore
 
               table?.customers = [
                 ...table.customers,
@@ -165,6 +167,7 @@ export const AppProvider = ({ children }: any) => {
                   ],
                 },
               ];
+              //@ts-ignore
 
               table?.reservedTimes = [
                 ...table.reservedTimes,
@@ -177,6 +180,7 @@ export const AppProvider = ({ children }: any) => {
 
               const currentCustomerToAddIndex =
                 state.tableManuallyBooked.customers.length - 1;
+              //@ts-ignore
 
               table?.customers = [
                 {
@@ -193,6 +197,7 @@ export const AppProvider = ({ children }: any) => {
                   ],
                 },
               ];
+              //@ts-ignore
 
               table?.reservedTimes = [
                 state.tableManuallyBooked?.reservedTimes[currentTimeToAddIndex],
@@ -207,14 +212,14 @@ export const AppProvider = ({ children }: any) => {
     }
   }, [state.tableManuallyBooked]);
 
-  const setDate = (currentDate) => {
+  const setDate = (currentDate: any) => {
     dispatch({
       type: SET_DATE,
       payload: currentDate,
     });
   };
 
-  const changeCurrentFormPartVisible = (formPartNumber) => {
+  const changeCurrentFormPartVisible = (formPartNumber: number) => {
     dispatch({
       type: CHANGE_WHICH_FORM_PART_IS_VISIBLE,
       payload: formPartNumber,
@@ -253,7 +258,7 @@ export const AppProvider = ({ children }: any) => {
     });
   };
 
-  const showSingleTableReservationsModal = (e) => {
+  const showSingleTableReservationsModal = (e: any) => {
     dispatch({
       type: SEARCH_SINGLE_TABLE_RESERVATIONS_MODAL,
       payload: e,
