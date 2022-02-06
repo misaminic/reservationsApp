@@ -2,12 +2,13 @@ import { NextApiRequest, NextApiResponse, NextApiHandler } from 'next';
 import { MongoClient } from 'mongodb';
 
 async function handler(req: NextApiRequest, res: NextApiResponse) {
+  //@ts-ignore
   const client = await MongoClient.connect(process.env.MONGODB_URI);
 
   if (req.method === 'POST') {
     const oneReservation = req.body.state;
     console.log(oneReservation, 'ovo je iz POST METODE state');
-
+    //@ts-ignore
     const db = client.db();
 
     try {
@@ -30,6 +31,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
   }
 
   if (req.method === 'GET') {
+    //@ts-ignore
     const db = client.db();
     const query = req.query;
     console.log(query.dateChosen, 'ovo je kveri iz GET metode');
@@ -43,7 +45,7 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
       console.log(error, 'error from get request');
     }
   }
-
+  //@ts-ignore
   client.close();
 }
 export default handler;
