@@ -42,7 +42,9 @@ const SearchReservationsModal = () => {
         return allTables.push(table);
       });
     });
-    {/* @ts-ignore */}
+    {
+      /* @ts-ignore */
+    }
     const foundCustomersInReservations = allTables.map((table) => {
       return table.customers.map((customer: any) => {
         return customer.name.toLowerCase() === nameToSearch.toLowerCase()
@@ -55,7 +57,6 @@ const SearchReservationsModal = () => {
       foundCustomersInReservations.filter((item) => {
         return item.length > 0;
       });
-
 
     setCurrentFoundReservations(foundReservationsWithoutFalsyValues);
   }, [nameToSearch, searchAgainAllReservations]);
@@ -164,7 +165,6 @@ const SearchReservationsModal = () => {
                             'd. M. yyyy.'
                           );
 
-                          console.log(table.time.start, 'gledaj vreme');
                           const reservedTimeStart = format(
                             new Date(table.time.start),
                             'H:mm'

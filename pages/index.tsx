@@ -85,7 +85,6 @@ const Home: NextPage = () => {
       const dateFormatDbReady = currentDate.toString().slice(0, 15);
       setDate(dateFormatDbReady);
     }
-    console.log(dataFromDb, 'PROMENA DATUMA');
   }, [currentDate]);
 
   useEffect(() => {
@@ -99,7 +98,6 @@ const Home: NextPage = () => {
   }, [arrivingTime, leavingTime]);
 
   useEffect(() => {
-    console.log('usao da uradi suitable', new Date());
     if (numberOfPeople === 1) {
       const getAllTablesForTheSizeOfGroup = listOfAllTables.filter((item) => {
         return item.key === 2;
@@ -111,7 +109,6 @@ const Home: NextPage = () => {
       });
       setSuitableTableSize(getAllTablesForTheSizeOfGroup);
     } else {
-      console.log('usao da uradi suitable i to u njegov else');
       const getAllTablesForTheSizeOfGroup = listOfAllTables.filter((item) => {
         return item.key === numberOfPeople;
       });
@@ -126,13 +123,6 @@ const Home: NextPage = () => {
           if (table.id === currentTableReserved?.id) {
             const currentTimeToAddIndex =
               currentTableReserved.reservedTimes.length - 1;
-
-            console.log(
-              currentTableReserved,
-              'sto trenutni',
-              currentTableReserved?.reservedTimes[currentTimeToAddIndex],
-              'vreme sve ovo je iz zadnjeg useEFFECT'
-            );
 
             table?.customers = [
               ...table.customers,
@@ -150,16 +140,12 @@ const Home: NextPage = () => {
               ...table.reservedTimes,
               currentTableReserved?.reservedTimes[currentTimeToAddIndex],
             ];
-            // console.log('poklapa se id sa stolom');
             return table;
           }
         });
       });
     }
-    console.log(
-      currentReservedTableInAllTables,
-      'listOfAllTable trenutak pre nego sto se apdejtuje'
-    );
+
     updateListOfAllTables(currentReservedTableInAllTables);
 
     if (currentTableReserved?.id) {
@@ -237,14 +223,12 @@ const Home: NextPage = () => {
       // getting all the tables and then each table's reservedTimes property
       // applying time library's function to check if intervals are overlapping
       // this returns array with boolean values, true if they are overlapping
-      console.log(suitableTableSize[0], 'SUITABLE TABLES SIZE');
       const allAvailableTablesForGroupSize = suitableTableSize[0].tables.filter(
         (table) => {
           return table.available === true && table;
         }
       );
 
-      console.log(allAvailableTablesForGroupSize, 'Svi dostupni');
       const availableTablesOnlyTheOneThatDontHaveCurrentTimeFrame =
         allAvailableTablesForGroupSize.map((table) => {
           if (table.reservedTimes.length === 0) {
@@ -259,8 +243,6 @@ const Home: NextPage = () => {
               return isTimeSlotNotReserved;
             });
 
-            console.log(timeAlreadyUsed, 'vreme korisceno');
-
             if (timeAlreadyUsed === false) {
               return table;
             } else {
@@ -274,11 +256,6 @@ const Home: NextPage = () => {
           (item) => item !== null || undefined
         );
 
-      console.log(
-        availableTablesFilteredFromFalsyValues,
-        'oni koji nemaju vec to vreme uneto'
-      );
-
       if (availableTablesFilteredFromFalsyValues.length === 0) {
         showTableAvailabilityMsg(
           true,
@@ -289,18 +266,10 @@ const Home: NextPage = () => {
 
       const availableTablesOnlyTheOneThatDontHaveCurrentTimeFrameAndTimeFramesNotOverlapping =
         availableTablesFilteredFromFalsyValues.map((table) => {
-          console.log(table, 'vremena stolova');
           if (table?.reservedTimes?.length === 0) {
             return table;
           } else {
             return table?.reservedTimes?.map((time) => {
-              console.log(time, 'vrenme sad');
-              // console.log(
-              //   { start: new Date(time?.start), end: new Date(time?.end) },
-              //   'vreme u bazi',
-              //   timeStartEndUserInput,
-              //   'user vreme'
-              // );
               const checkIfTimesOverlapping = areIntervalsOverlapping(
                 { start: new Date(time?.start), end: new Date(time?.end) },
                 timeStartEndUserInput,
@@ -308,11 +277,7 @@ const Home: NextPage = () => {
                   inclusive: true,
                 }
               );
-              console.log(
-                checkIfTimesOverlapping === false
-                  ? table.id
-                  : `${table.id} vremena se seku`
-              );
+
               if (checkIfTimesOverlapping === false) {
                 return table;
               } else {
@@ -337,10 +302,8 @@ const Home: NextPage = () => {
         availableTablesOnlyTheOneThatDontHaveCurrentTimeFrameAndTimeFramesNotOverlapping.filter(
           (item) => {
             if (item !== undefined) {
-              // console.log(item[0], 'sta je ITEM');
               return item[0] !== null;
             } else {
-              // console.log('item ti undefined');
               return;
             }
           }
@@ -365,19 +328,10 @@ const Home: NextPage = () => {
         changeAnimationStatus();
         setCurrentTableReserved(availableTablesFiltered[randomNumber]);
         changeCurrentFormPartVisible(1);
-        console.log(
-          availableTablesFiltered[randomNumber],
-          'available table kad je vise itema'
-        );
       } else {
         changeAnimationStatus();
         setCurrentTableReserved(availableTablesFiltered[0]);
         changeCurrentFormPartVisible(1);
-
-        console.log(
-          availableTablesFiltered[0],
-          'available table kad je jedan item'
-        );
       }
     }
   };
@@ -416,7 +370,6 @@ const Home: NextPage = () => {
 
     if (dataIsNotValid === false) {
       if (currentTableReserved[0]?.reservedTimes?.length > 0) {
-        console.log(currentTableReserved[0], 'ovo ti je crt TABLE SAD');
         setCurrentTableReserved({
           ...currentTableReserved[0],
 
@@ -438,11 +391,6 @@ const Home: NextPage = () => {
         changeCurrentFormPartVisible(2);
         // changeAnimationStatus();
       } else {
-        console.log(currentTableReserved, 'usao u else i ovo je crt table');
-        console.log(
-          timeStartEndUserInput,
-          'usao u else i ovo je vreme koje je korisnik uneo'
-        );
         setCurrentTableReserved({
           ...currentTableReserved,
           reservedTimes: [

@@ -94,9 +94,7 @@ export const AppProvider = ({ children }: any) => {
     setDataFromDb(getData);
   };
 
-  useEffect(() => {
-    console.log(state.tableOptionsModalPart, 'modal part');
-  }, [state.tableOptionsModalPart]);
+  useEffect(() => {}, [state.tableOptionsModalPart]);
 
   useEffect(() => {
     axiosFetch();

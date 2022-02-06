@@ -63,7 +63,6 @@ const app_reducer = (state: any, action: any) => {
   if (action.type === MANUALLY_BOOK_A_TABLE) {
     const { updatedTable: manuallyBookedTableUpdated, tableSize } =
       action.payload;
-    console.log(manuallyBookedTableUpdated, tableSize, 'iz ReDUCERA');
     return {
       ...state,
       tableManuallyBooked: manuallyBookedTableUpdated,

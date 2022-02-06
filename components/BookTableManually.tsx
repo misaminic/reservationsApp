@@ -83,7 +83,7 @@ const BookTableManually = ({ table, size }: any) => {
     }
   }, [currentDate, arrivingTime, leavingTime]);
 
-  const submitAndBookTheTable = (e) => {
+  const submitAndBookTheTable = (e: any) => {
     e.preventDefault();
 
     if (isName.length < 2) {
@@ -113,8 +113,6 @@ const BookTableManually = ({ table, size }: any) => {
     }
 
     if (table.reservedTimes?.length > 0) {
-      console.log('book manually usao kad postoji rezervacija');
-
       const timeAlreadyUsed = table.reservedTimes.some((time: any) => {
         const timeSlotReserved = _.isEqual(
           { start: new Date(time?.start), end: new Date(time?.end) },
@@ -132,13 +130,6 @@ const BookTableManually = ({ table, size }: any) => {
 
       if (timeAlreadyUsed === false) {
         const areTimesOverlapping = table.reservedTimes.find((time: any) => {
-          console.log(
-            new Date(time?.start),
-            new Date(time?.end),
-            'iz baze',
-            timeStartEndUserInput,
-            'user vreme book manually'
-          );
           const checkIfTimesOverlapping = areIntervalsOverlapping(
             { start: new Date(time?.start), end: new Date(time?.end) },
             timeStartEndUserInput,
