@@ -1048,6 +1048,7 @@ const TableMap = () => {
                       ? 'bg-sivaBlockedTable '
                       : ''
                   } rectangle-tables  w-10 h-10 border-2 rounded border-red-300 shadow-lg flex justify-center items-center md:mr-8 m-2 mt-2`}
+                  //@ts-ignore
                   alt="table33"
                   data-size="2"
                   onClick={(e) => changeTableState(e)}
