@@ -42,9 +42,7 @@ const SearchReservationsModal = () => {
         return allTables.push(table);
       });
     });
-    {
-      /* @ts-ignore */
-    }
+    { /* @ts-ignore */}
     const foundCustomersInReservations = allTables.map((table) => {
       return table.customers.map((customer: any) => {
         return customer.name.toLowerCase() === nameToSearch.toLowerCase()
