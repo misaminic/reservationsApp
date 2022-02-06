@@ -420,7 +420,7 @@ const TableMap = () => {
               className="ml-1 lg:ml-8"
               sx={{ backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
             >
-              {/* //@ts-ignore */}
+              {/* @ts-ignore */}
               <ChevronRightIcon onClick={(e: any) => changeDayHandlerPlus(e)} />
             </Button>
           </div>
