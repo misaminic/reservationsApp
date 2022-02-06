@@ -286,7 +286,9 @@ const TableMap = () => {
     if (currentArrivingTime.getHours() >= 21) {
       setCurrentArrivingTime(currentArrivingTime);
     } else {
-      setCurrentArrivingTime((prevState) => addHours(new Date(prevState), 1));
+      setCurrentArrivingTime((prevState: any) =>
+        addHours(new Date(prevState), 1)
+      );
     }
   };
 
