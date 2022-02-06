@@ -1,5 +1,4 @@
-import BookTableByTableNumberDateTime from '../../components/BookTableByTableNumberDateTime';
-import TableMap from '../../components/tableMap';
+import TableMap from '../../components/TableMap';
 
 const SofiasAdmin = () => {
   return (
