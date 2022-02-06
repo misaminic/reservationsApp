@@ -296,7 +296,9 @@ const TableMap = () => {
     if (currentArrivingTime.getHours() <= 12) {
       setCurrentArrivingTime(currentArrivingTime);
     } else {
-      setCurrentArrivingTime((prevState) => subHours(new Date(prevState), 1));
+      setCurrentArrivingTime((prevState: any) =>
+        subHours(new Date(prevState), 1)
+      );
     }
   };
 
@@ -308,7 +310,9 @@ const TableMap = () => {
     if (currentLeavingTime.getHours() >= 21) {
       setCurrentLeavingTime(new Date(year, month, day, 22, 0));
     } else {
-      setCurrentLeavingTime((prevState) => addHours(new Date(prevState), 1));
+      setCurrentLeavingTime((prevState: any) =>
+        addHours(new Date(prevState), 1)
+      );
     }
   };
 
@@ -316,7 +320,9 @@ const TableMap = () => {
     if (currentLeavingTime.getHours <= 13) {
       setCurrentLeavingTime(currentLeavingTime);
     } else {
-      setCurrentLeavingTime((prevState) => subHours(new Date(prevState), 1));
+      setCurrentLeavingTime((prevState: any) =>
+        subHours(new Date(prevState), 1)
+      );
     }
   };
 
