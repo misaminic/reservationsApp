@@ -1157,7 +1157,6 @@ const TableMap = () => {
           </div>
         </section>
       </section>
-      //
     </>
   );
 };
