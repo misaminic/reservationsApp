@@ -152,7 +152,7 @@ const SingleTableFindReservationsModal = ({ table, previousPart }: any) => {
                 {currentFoundReservations?.customers?.length ? (
                   // @ts-ignore
                   currentFoundReservations.customers.map(
-                    (customer, index): any => {
+                    (customer: any, index: number): any => {
                       if (customer?.name.length > 0) {
                         const date = format(
                           new Date(customer?.time.start),
