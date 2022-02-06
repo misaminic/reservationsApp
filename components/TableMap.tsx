@@ -378,6 +378,7 @@ const TableMap = () => {
               variant="outlined"
               size="small"
               className="mr-1 lg:mr-8"
+              //@ts-ignore
               onClick={(e: any) => changeDayHandlerMinus(e)}
               sx={{ backgroundColor: 'rgba(255, 255, 255, 0.8)' }}
             >
