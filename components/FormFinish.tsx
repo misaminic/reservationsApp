@@ -17,8 +17,8 @@ const FormFinish = () => {
   }, []);
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold uppercase mb-10 tracking-widest">
+    <div className="form-finish">
+      <h1 className="text-2xl font-semibold uppercase tracking-widest">
         Bord har blitt booket. Takk!
       </h1>
     </div>

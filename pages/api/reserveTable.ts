@@ -7,7 +7,6 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
 
   if (req.method === 'POST') {
     const oneReservation = req.body.state;
-    console.log(oneReservation, 'ovo je iz POST METODE state');
     //@ts-ignore
     const db = client.db();
 
@@ -18,7 +17,6 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
           $set: {
             date: oneReservation.date,
             tables: oneReservation.tables,
-            kurac: oneReservation.kurac,
           },
         },
         { upsert: true, returnNewDocument: true }
@@ -34,12 +32,10 @@ async function handler(req: NextApiRequest, res: NextApiResponse) {
     //@ts-ignore
     const db = client.db();
     const query = req.query;
-    console.log(query.dateChosen, 'ovo je kveri iz GET metode');
     try {
       const documents = await db
         .collection('reservations')
         .findOne({ date: query.dateChosen });
-      console.log(documents, 'ovo su documents');
       res.status(200).json({ reservations: documents });
     } catch (error) {
       console.log(error, 'error from get request');
