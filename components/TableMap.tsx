@@ -330,6 +330,7 @@ const TableMap = () => {
 
   // Manipulate table, book and cancel reservation
   const changeTableState = (e: any) => {
+    console.log(e);
     let tableNumberClicked: any;
     let tableSize: any;
     // check which element is clicked in order to get proper data
@@ -357,6 +358,8 @@ const TableMap = () => {
           return table.id === tableNumberClicked;
         }
       );
+
+      console.log(clickedTable, 'kliknuti sto');
 
       if (clickedTable) {
         setCurrentTable(clickedTable);
@@ -597,7 +600,7 @@ const TableMap = () => {
                   className="rectangle-tables w-16 h-10 flex justify-center items-center md:ml-8 m-2"
                   //@ts-ignore
                   alt="invisible"
-                  onClick={(e) => changeTableState(e)}
+                  // onClick={(e) => changeTableState(e)}
                 ></div>
               </div>
               <div className="seven bg-siva border-sivaBorder border-l-4 flex justify-start border-b-4 pb-1">
@@ -642,7 +645,7 @@ const TableMap = () => {
                   className="rectangle-tables w-16 h-10 flex justify-center items-center md:ml-8 m-2"
                   //@ts-ignore
                   alt="invisible"
-                  onClick={(e) => changeTableState(e)}
+                  // onClick={(e) => changeTableState(e)}
                 ></div>
               </div>
 
@@ -660,7 +663,7 @@ const TableMap = () => {
                   } rectangle-tables w-16 h-10 flex justify-center items-center border-2 rounded border-red-300 shadow-lg  md:ml-8 m-2`}
                   //@ts-ignore
                   alt="table6"
-                  data-size="2"
+                  data-size="4"
                   onClick={(e) => changeTableState(e)}
                 >
                   <h3>6</h3>
@@ -689,7 +692,7 @@ const TableMap = () => {
                   className="rectangle-tables w-16 h-10 flex justify-center items-center md:ml-8 m-2"
                   //@ts-ignore
                   alt="invisible"
-                  onClick={(e) => changeTableState(e)}
+                  // onClick={(e) => changeTableState(e)}
                 ></div>
               </div>
               <div className="five bg-siva border-sivaBorder border-l-4 flex justify-start">
@@ -722,7 +725,7 @@ const TableMap = () => {
                   } rectangle-tables w-16 h-10 flex justify-center items-center border-2 rounded border-red-300 shadow-lg md:mr-8 m-2`}
                   //@ts-ignore
                   alt="table12"
-                  data-size="12"
+                  data-size="6"
                   onClick={(e) => changeTableState(e)}
                 >
                   <h3>12</h3>
@@ -733,7 +736,7 @@ const TableMap = () => {
                   className="rectangle-tables w-16 h-10 flex justify-center items-center md:ml-8 m-2"
                   //@ts-ignore
                   alt="invisible"
-                  onClick={(e) => changeTableState(e)}
+                  // onClick={(e) => changeTableState(e)}
                 ></div>
               </div>
               <div
@@ -761,7 +764,7 @@ const TableMap = () => {
                   className="rectangle-tables w-16 h-10 flex justify-center items-center md:ml-8 m-2"
                   //@ts-ignore
                   alt="invisible"
-                  onClick={(e) => changeTableState(e)}
+                  // onClick={(e) => changeTableState(e)}
                 ></div>
               </div>
               <div className="invisible-element-7 bg-siva border-sivaBorder flex justify-start border-r-4 pb-1">
@@ -769,7 +772,7 @@ const TableMap = () => {
                   className="rectangle-tables w-16 h-10 flex justify-center items-center md:ml-8 m-2"
                   //@ts-ignore
                   alt="invisible"
-                  onClick={(e) => changeTableState(e)}
+                  // onClick={(e) => changeTableState(e)}
                 ></div>
               </div>
 
@@ -823,6 +826,7 @@ const TableMap = () => {
                   } rectangle-tables w-16 h-28 flex justify-center items-center border-2 shadow-lg rounded border-red-300 md:ml-8 m-2`}
                   //@ts-ignore
                   alt="table20"
+                  data-size="12"
                   onClick={(e) => changeTableState(e)}
                 >
                   <h3>20</h3>
@@ -894,7 +898,7 @@ const TableMap = () => {
                   //@ts-ignore
 
                   alt="invisible"
-                  onClick={(e) => changeTableState(e)}
+                  // onClick={(e) => changeTableState(e)}
                 ></div>
               </div>
 
@@ -1116,6 +1120,7 @@ const TableMap = () => {
                   <h3>42</h3>
                 </div>
               </div>
+
               <div className="fortythree bg-siva border-sivaBorder flex justify-start border-b-4 pl-6">
                 <div
                   className={` ${
@@ -1126,15 +1131,17 @@ const TableMap = () => {
                     currentBlockedTables[23]?.available === false
                       ? 'bg-sivaBlockedTable '
                       : ''
-                  } rectangle-tables w-16 h-10 border-2 rounded border-red-300 shadow-lg  flex justify-center items-center m-2 mt-2 ml-8`}
+                  } rectangle-tables  w-16 h-10 border-2 rounded border-red-300 shadow-lg flex justify-center items-center m-2 mt-2 ml-8`}
                   //@ts-ignore
+
                   alt="table43"
-                  data-size="4"
-                  onClick={(e) => changeTableState(e)}
+                  data-size="5"
+                  onClick={(e: any) => changeTableState(e)}
                 >
                   <h3>43</h3>
                 </div>
               </div>
+
               <div className="fortyfour bg-siva border-sivaBorder flex justify-end border-b-4 border-r-4 rounded-br-lg">
                 <div
                   className={` ${

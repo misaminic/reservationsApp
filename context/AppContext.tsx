@@ -127,7 +127,6 @@ export const AppProvider = ({ children }: any) => {
 
       updateListOfAllTables(freshCopyTableList);
     }
-    console.log(dataFromDb, 'data from DB iz useEffect-a');
   }, [dataFromDb]);
 
   useEffect(() => {

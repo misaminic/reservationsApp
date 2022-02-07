@@ -81,12 +81,7 @@ const tables = [
         reservedTimes: [],
         customers: [],
       },
-      {
-        id: 12,
-        available: true,
-        reservedTimes: [],
-        customers: [],
-      },
+
       {
         id: 13,
         available: true,
@@ -166,6 +161,12 @@ const tables = [
     tables: [
       {
         id: 10,
+        available: true,
+        reservedTimes: [],
+        customers: [],
+      },
+      {
+        id: 12,
         available: true,
         reservedTimes: [],
         customers: [],
